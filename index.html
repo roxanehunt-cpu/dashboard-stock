@@ -2,7 +2,19 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<script>
+// Détection précoce : force le mode mobile si l'écran physique est petit,
+// indépendamment de ce que Safari rapporte comme largeur de viewport CSS.
+(function(){
+  var w = Math.min(window.screen.width, window.screen.height, window.innerWidth || 9999);
+  if (w <= 860) {
+    document.documentElement.classList.add('force-mobile');
+  }
+})();
+</script>
 <title>Dashboard Stock Technique · Orange CI · Juin 2026</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -77,6 +89,48 @@ body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;font-size:13px;ba
   .tn-logo{width:24px;height:24px;font-size:12px}
   .tn-title{font-size:12px}
 }
+
+
+/* ══════ FORCE MOBILE (Safari iOS viewport bug fallback) ══════ */
+html.force-mobile body {font-size:12px;overflow:auto}
+html.force-mobile .topnav {padding-right:4px}
+html.force-mobile .burger {display:flex}
+html.force-mobile .tn-tabs {display:none}
+html.force-mobile .tn-brand {flex:1;border-right:none}
+html.force-mobile .tn-period {font-size:9px;padding:3px 8px}
+html.force-mobile .body {grid-template-columns:1fr;display:block;height:auto;overflow:visible}
+html.force-mobile .sidebar {
+    position:fixed;top:0;left:0;bottom:0;width:250px;max-width:80vw;
+    transform:translateX(-100%);transition:transform .22s ease;z-index:200;
+    box-shadow:4px 0 24px rgba(0,0,0,.4);}
+html.force-mobile .sidebar.open {transform:translateX(0)}
+html.force-mobile .sb-close {display:flex;align-items:center;justify-content:center;width:28px;height:28px;background:#F5F5F2;border:1px solid #E3E1DA;border-radius:6px;color:#6B6960;font-size:14px;cursor:pointer;margin-left:auto;margin-right:10px}
+html.force-mobile .content {padding:10px;overflow:visible;height:auto}
+html.force-mobile .upload-bar {flex-wrap:wrap}
+html.force-mobile .upload-info {width:100%;order:3;font-size:10px}
+html.force-mobile .filter-strip {flex-direction:column;align-items:stretch;gap:8px}
+html.force-mobile .fg {min-width:0;width:100%}
+html.force-mobile .fg select, html.force-mobile .fg input {width:100%;min-width:0;font-size:13px;padding:8px}
+html.force-mobile .f-sep {display:none}
+html.force-mobile .f-count {text-align:center;order:10}
+html.force-mobile .fbtns {margin-left:0;justify-content:stretch;width:100%}
+html.force-mobile .fbtns .btn {flex:1;justify-content:center;padding:8px}
+html.force-mobile .kpi-row {grid-template-columns:repeat(2,1fr)}
+html.force-mobile .g2, html.force-mobile .g3 {grid-template-columns:1fr}
+html.force-mobile .stat-row {grid-template-columns:repeat(2,1fr)}
+html.force-mobile .sc {border-right:none;border-bottom:1px solid #E3E1DA}
+html.force-mobile .sc:nth-child(odd) {border-right:1px solid #E3E1DA}
+html.force-mobile .card-hd {flex-wrap:wrap;gap:6px}
+html.force-mobile .card-hd-r {width:100%;justify-content:flex-start}
+html.force-mobile table {font-size:10px}
+html.force-mobile thead th {padding:6px 8px;font-size:8px}
+html.force-mobile tbody td {padding:5px 8px}
+html.force-mobile .tscroll {max-height:340px}
+html.force-mobile .ch {min-height:180px}
+html.force-mobile .kpi-row {grid-template-columns:repeat(2,1fr)}
+html.force-mobile .tn-brand {padding:0 10px}
+html.force-mobile .tn-logo {width:24px;height:24px;font-size:12px}
+html.force-mobile .tn-title {font-size:12px}
 
 /* ══════ TOPNAV ══════ */
 .tn-brand{display:flex;align-items:center;gap:10px;padding:0 16px;border-right:1px solid #E3E1DA;height:100%}
