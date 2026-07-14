@@ -311,6 +311,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="sb-item" onclick="go('pareto')"><span class="si">📐</span>Concentration Pareto</div>
   <div class="sb-section">Mouvement</div>
   <div class="sb-item" onclick="go('rotation')"><span class="si">🔄</span>Taux de rotation</div>
+  <div class="sb-item" onclick="go('rotation_mensuel')"><span class="si">📈</span>Taux de rotation mensuel</div>
   <div class="sb-item" onclick="go('frequence')"><span class="si">⚡</span>Fréquence mouvement</div>
   <div class="sb-item" onclick="go('services')"><span class="si">🏭</span>Conso par service</div>
   <div class="sb-item" onclick="go('prestataires')"><span class="si">🧰</span>Conso par prestataire</div>
@@ -322,6 +323,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="sb-item" onclick="go('ruptures')"><span class="si">⚠️</span>Ruptures classe A<span class="sc" id="cnt-r">—</span></div>
   <div class="sb-section">Profil</div>
   <div class="sb-item" onclick="go('age')"><span class="si">📅</span>Âge des stocks</div>
+  <div class="sb-item" onclick="go('age_mensuel')"><span class="si">🗓️</span>Âge des stocks (mensuel)</div>
   <div class="sb-section">Export</div>
   <div class="sb-item" onclick="go('extraction')"><span class="si">📤</span>Extraction données</div>
   <div class="sb-foot" id="sb-foot">Données Juin 2026<br>380 articles · 2 499 mvts</div>
@@ -508,6 +510,21 @@ tbody tr:last-child td{border-bottom:none}
         <div class="card-hd-r"><button class="btn btn-csv" onclick="exportTbl('tTO','rotation')">⬇ CSV</button><button class="btn btn-xl" onclick="exportTblX('tTO','Rotation')">⬇ Excel</button></div>
       </div>
       <div class="card-bd p0"><div class="tscroll"><table id="tTO"></table></div></div>
+    </div>
+  </div>
+
+  <!-- ROTATION MENSUELLE -->
+  <div id="pg-rotation_mensuel" class="page">
+    <div class="alert al-am">Taux de rotation = Σ Quantité consommée sur le mois / ((Quantité en stock initiale + Quantité en stock finale) / 2) · calculé sur l'ensemble du périmètre (toutes classes GL confondues), en cohérence avec le calcul du Turn-Over par article.</div>
+    <div class="card">
+      <div class="card-hd"><div><h2>Évolution du taux de rotation mensuel</h2></div></div>
+      <div class="card-bd"><div class="ch" style="height:320px"><canvas id="cROTM"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><h2>Détail mensuel</h2></div>
+        <div class="card-hd-r"><button class="btn btn-csv" onclick="exportTbl('tROTM','rotation_mensuel')">⬇ CSV</button><button class="btn btn-xl" onclick="exportTblX('tROTM','Rotation_Mensuel')">⬇ Excel</button></div>
+      </div>
+      <div class="card-bd p0"><div class="tscroll"><table id="tROTM"></table></div></div>
     </div>
   </div>
 
@@ -704,6 +721,23 @@ tbody tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <!-- ÂGE MENSUEL -->
+  <div id="pg-age_mensuel" class="page">
+    <div class="card">
+      <div class="card-hd"><div><h2>Évolution mensuelle de la valeur de stock par tranche d'âge</h2></div></div>
+      <div class="card-bd">
+        <div class="leg"><div class="li"><div class="ls" style="background:#4BB4E6"></div>0–3 mois</div><div class="li"><div class="ls" style="background:#FFB400"></div>3–6 mois</div><div class="li"><div class="ls" style="background:#FFD200"></div>6 mois–1 an</div><div class="li"><div class="ls" style="background:#50BE87"></div>1 an +</div></div>
+        <div class="ch" style="height:420px"><canvas id="cAGM"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><h2>Détail mensuel</h2></div>
+        <div class="card-hd-r"><button class="btn btn-csv" onclick="exportTbl('tAGM','age_mensuel')">⬇ CSV</button><button class="btn btn-xl" onclick="exportTblX('tAGM','Age_Mensuel')">⬇ Excel</button></div>
+      </div>
+      <div class="card-bd p0"><div class="tscroll"><table id="tAGM"></table></div></div>
+    </div>
+  </div>
+
   <!-- EXTRACTION -->
   <div id="pg-extraction" class="page">
     <div class="alert al-bl">Utilisez les filtres ci-dessus pour affiner la sélection, puis exportez. Le tableau reflète la sélection active en temps réel.</div>
@@ -752,6 +786,8 @@ function fbSave(payload) {
     svc: payload.svc,
     pre: payload.pre,
     psa: payload.psa,
+    age_mensuel: payload.age_mensuel,
+    rotation_mensuel: payload.rotation_mensuel,
     ret_mag: payload.ret_mag,
     art_svc: payload.art_svc,
     art_month: payload.art_month,
@@ -787,6 +823,8 @@ let D = JSON.parse(JSON.stringify(INIT_DB.dash));
 let SVC_G = INIT_DB.svc;
 let PRE_G = INIT_DB.pre || {};
 let PSA_G = INIT_DB.psa || {};
+let AGE_MENSUEL_G = INIT_DB.age_mensuel || [];
+let ROTATION_MENSUEL_G = INIT_DB.rotation_mensuel || [];
 let RET_G = INIT_DB.ret_mag;
 let ART_SVC_G = INIT_DB.art_svc;
 let FD = D; // Filtered data
@@ -804,6 +842,62 @@ const f0 = n => Math.round(n).toLocaleString('fr-FR');
 const fP = n => (+n).toFixed(1)+'%';
 const clBadge = c => c==='A'?'bA':c==='B'?'bB':'bC';
 const GRID = '#E3E1DA', TICK = '#7C7A70';
+
+// Plugin léger "étiquettes de valeur" (pas de dépendance externe type chartjs-plugin-datalabels)
+const valueLabelsPlugin = {
+  id: 'valueLabels',
+  afterDatasetsDraw(chart, args, opts) {
+    const {ctx} = chart;
+    const fmt = (opts && opts.format) || (v => v);
+    const minVal = (opts && opts.minValue) || 0;
+    ctx.save();
+    ctx.font = '600 10px Calibri, sans-serif';
+    ctx.textAlign = 'center';
+    chart.data.datasets.forEach((ds, di) => {
+      if (opts && opts.datasetIndex !== undefined && opts.datasetIndex !== di) return;
+      const meta = chart.getDatasetMeta(di);
+      if (meta.hidden) return;
+      meta.data.forEach((el, i) => {
+        const v = ds.data[i];
+        if (v === null || v === undefined || Math.abs(v) < minVal) return;
+        const pos = el.tooltipPosition ? el.tooltipPosition() : {x: el.x, y: el.y};
+        ctx.fillStyle = (opts && opts.color) || '#18180F';
+        let yOff = (opts && opts.yOffset !== undefined) ? opts.yOffset : -8;
+        if (typeof yOff === 'function') yOff = yOff(v);
+        ctx.fillText(fmt(v), pos.x, pos.y + yOff);
+      });
+    });
+    ctx.restore();
+  }
+};
+
+// Plugin "ligne d'objectif" — trace une ligne horizontale de référence (ex : objectif taux de rotation)
+const targetLinePlugin = {
+  id: 'targetLine',
+  afterDatasetsDraw(chart, args, opts) {
+    if (!opts || opts.value === undefined || opts.value === null) return;
+    const {ctx, chartArea, scales} = chart;
+    const yScale = scales[opts.yAxisID || 'y'];
+    if (!yScale) return;
+    const y = yScale.getPixelForValue(opts.value);
+    ctx.save();
+    ctx.strokeStyle = opts.color || '#CD3C14';
+    ctx.lineWidth = 1.5;
+    ctx.setLineDash(opts.dash || [6, 4]);
+    ctx.beginPath();
+    ctx.moveTo(chartArea.left, y);
+    ctx.lineTo(chartArea.right, y);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    if (opts.label) {
+      ctx.font = '600 10px Calibri, sans-serif';
+      ctx.fillStyle = opts.color || '#CD3C14';
+      ctx.textAlign = 'right';
+      ctx.fillText(opts.label, chartArea.right - 4, y - 6);
+    }
+    ctx.restore();
+  }
+};
 const PALETTE = ['#FF7900','#50BE87','#4BB4E6','#FFD200','#CD3C14','#A885D8','#0A6E31'];
 const SVC_C = {'Production FTTH':'#4BB4E6','Déploiement FTTX':'#50BE87','Maintenance SAV':'#FFD200','B2B FTTH':'#FFB400','Maintenance Backbone':'#A885D8','Déplacement Réseau':'#0A6E31','Backbone':'#CD3C14'};
 const PRE_PALETTE = ['#FF7900','#4BB4E6','#50BE87','#FFD200','#A885D8','#CD3C14','#0A6E31','#FFB400','#6B6960','#E85C41','#2E86AB','#8E44AD','#16A085','#D68910','#5D6D7E','#C0392B','#1ABC9C','#F39C12','#7D3C98','#2874A6'];
@@ -1013,7 +1107,7 @@ function updateKPIs(data) {
 // ══════════════════════════════════════
 // REDRAW — uniquement la page visible (perf)
 // ══════════════════════════════════════
-const ALL_PAGES = ['evolution','pareto','rotation','frequence','services','prestataires','mensuel','correlation','zeroconso','dormants','ruptures','age','extraction'];
+const ALL_PAGES = ['evolution','pareto','rotation','rotation_mensuel','frequence','services','prestataires','mensuel','correlation','zeroconso','dormants','ruptures','age','age_mensuel','extraction'];
 let currentPage = 'evolution';
 let dirtyPages = new Set(); // pages à reconstruire au prochain affichage
 
@@ -1021,6 +1115,7 @@ const BUILDERS = {
   evolution: buildEvolution,
   pareto: buildPareto,
   rotation: buildRotation,
+  rotation_mensuel: buildRotationMensuel,
   frequence: buildFrequence,
   services: buildServices,
   prestataires: buildPrestataires,
@@ -1030,6 +1125,7 @@ const BUILDERS = {
   dormants: buildDormants,
   ruptures: buildRupturesA,
   age: buildAge,
+  age_mensuel: buildAgeMensuel,
   extraction: buildExtraction,
 };
 
@@ -1061,7 +1157,7 @@ function buildEvolution(data) {
 
   const WV=[vd,ve,vr,Math.abs(vc),vf];
   const WC=['#4BB4E6','#50BE87','#FFB400','#CD3C14','#FF7900'];
-  mkC('cWF',{type:'bar',data:{labels:['Initial','+ Entrées','+ Retours','− Sorties','= Final'],datasets:[{data:WV,backgroundColor:WC,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fN(WV[ctx.dataIndex])}}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v>=1e9?(v/1e9).toFixed(1)+'Md':v>=1e6?(v/1e6).toFixed(0)+'M':v}}}}});
+  mkC('cWF',{type:'bar',data:{labels:['Initial','+ Entrées','+ Retours','− Sorties','= Final'],datasets:[{data:WV,backgroundColor:WC,borderRadius:4,borderSkipped:false}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>fN(WV[ctx.dataIndex])}},valueLabels:{format:v=>fM(v),color:'#18180F',yOffset:v=>v<0?18:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v>=1e9?(v/1e9).toFixed(1)+'Md':v>=1e6?(v/1e6).toFixed(0)+'M':v}}}}});
 
   const clV=['A','B','C'].map(c=>data.filter(d=>d.c===c).reduce((s,d)=>s+d.vf,0));
   mkC('cABC',{type:'doughnut',data:{labels:['A','B','C'],datasets:[{data:clV,backgroundColor:['#50BE87','#4BB4E6','#6b7280'],hoverOffset:6,borderWidth:2,borderColor:'#FFFFFF'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'bottom',labels:{color:TICK,font:{size:10},padding:10,boxWidth:10}}},tooltip:{callbacks:{label:ctx=>fN(ctx.raw)}}}});
@@ -1080,7 +1176,7 @@ function buildEvolution(data) {
 
   const DV=[vd, veRet, consoAbsV, dispoV];
   const DC=['#4BB4E6','#50BE87','#CD3C14','#FF7900'];
-  mkC('cDisp',{type:'bar',data:{labels:['Stock initial','Entrée (Réception+Retour)','Conso','Disponibilité'],datasets:[{data:DV,backgroundColor:DC,borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const lbl=fN(DV[ctx.dataIndex]);if(ctx.dataIndex===2)return lbl+' ('+fP(tauxConso)+' de la dispo.)';return lbl;}}}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v>=1e9?(v/1e9).toFixed(1)+'Md':v>=1e6?(v/1e6).toFixed(0)+'M':v}}}}});
+  mkC('cDisp',{type:'bar',data:{labels:['Stock initial','Entrée (Réception+Retour)','Conso','Disponibilité'],datasets:[{data:DV,backgroundColor:DC,borderRadius:4,borderSkipped:false}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{const lbl=fN(DV[ctx.dataIndex]);if(ctx.dataIndex===2)return lbl+' ('+fP(tauxConso)+' de la dispo.)';return lbl;}}},valueLabels:{format:v=>fM(v),color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v>=1e9?(v/1e9).toFixed(1)+'Md':v>=1e6?(v/1e6).toFixed(0)+'M':v}}}}});
 }
 
 // ══════════════════════════════════════
@@ -1152,6 +1248,21 @@ function buildRotation(data) {
   act.forEach(d=>{const tc=Math.abs(d.to)>=5?'b-gn':Math.abs(d.to)>=1?'b-am':'b-rd';t.innerHTML+=`<tr><td style="font-family:monospace;font-size:10px;color:#6B6960">${d.a}</td><td>${d.d}</td><td><span class="badge ${clBadge(d.c)}">${d.c||'?'}</span></td><td class="neu">${fM(d.qd)}</td><td class="pos">+${fM(d.qe)}</td><td class="pos">+${fM(d.qr)}</td><td class="neg">${fM(d.qc)}</td><td class="neu">${fM(d.qf)}</td><td><span class="badge ${tc}">${d.to.toFixed(3)}</span></td><td style="color:#8A877D">${d.ns}</td></tr>`;});
 }
 
+function buildRotationMensuel() {
+  const rows = ROTATION_MENSUEL_G;
+  if (!rows || !rows.length) {
+    $('tROTM').innerHTML = '<tr><td class="empty-td">Aucune donnée — importez un fichier contenant l\'onglet "Taux de rotation Mensuel"</td></tr>';
+    return;
+  }
+  const labels = rows.map(m => m.mois);
+  const taux = rows.map(m => Math.round(m.taux*100));
+  mkC('cROTM',{type:'line',data:{labels,datasets:[{label:'Taux de rotation',data:taux,borderColor:'#FF7900',backgroundColor:'rgba(255,121,0,.12)',fill:true,tension:.3,pointBackgroundColor:'#FF7900',pointRadius:4}]},plugins:[valueLabelsPlugin,targetLinePlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' %'}},valueLabels:{format:v=>v+'%',color:'#CC4D00',yOffset:-12},targetLine:{value:10,label:'Objectif : 10 %',color:'#CD3C14'}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'%'}}}}});
+
+  const t=$('tROTM');
+  t.innerHTML='<tr><th>Mois</th><th>Qté initiale</th><th>Qté finale</th><th>Qté conso</th><th>Taux de rotation</th><th>Valeur initiale</th><th>Valeur finale</th><th>Valeur conso</th></tr>';
+  rows.forEach(m=>{const tp=Math.round((m.taux||0)*100);const hasQ=(m.qi!==undefined&&m.qi!==null);t.innerHTML+=`<tr><td>${m.mois}</td><td style="color:#6B6960">${hasQ?f0(m.qi):'—'}</td><td style="color:#6B6960">${hasQ?f0(m.qf):'—'}</td><td class="neg">${hasQ?f0(Math.abs(m.qc)):'—'}</td><td><span class="badge ${tp>=20?'b-gn':tp>=10?'b-am':'b-rd'}">${tp} %</span></td><td style="color:#8A877D;font-size:10px">${fN(m.vi||0)}</td><td style="color:#8A877D;font-size:10px">${fN(m.vf||0)}</td><td style="color:#8A877D;font-size:10px">${fN(Math.abs(m.vc||0))}</td></tr>`;});
+}
+
 // ══════════════════════════════════════
 // FREQUENCE
 // ══════════════════════════════════════
@@ -1161,7 +1272,7 @@ function buildFrequence(data) {
   set('fD',data.filter(d=>d.nm===0&&d.qf>0).length);
 
   const bins=[{l:'0 (dormant)',fn:d=>d.nm===0&&d.qf>0},{l:'1–5',fn:d=>d.nm>=1&&d.nm<=5},{l:'6–10',fn:d=>d.nm>=6&&d.nm<=10},{l:'11–20',fn:d=>d.nm>=11&&d.nm<=20},{l:'21–50',fn:d=>d.nm>=21&&d.nm<=50},{l:'>50',fn:d=>d.nm>50}];
-  mkC('cFD',{type:'bar',data:{labels:bins.map(b=>b.l),datasets:[{data:bins.map(b=>data.filter(b.fn).length),backgroundColor:['#CD3C14','#FFD200','#FFD200','#4BB4E6','#50BE87','#50BE87'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
+  mkC('cFD',{type:'bar',data:{labels:bins.map(b=>b.l),datasets:[{data:bins.map(b=>data.filter(b.fn).length),backgroundColor:['#CD3C14','#FFD200','#FFD200','#4BB4E6','#50BE87','#50BE87'],borderRadius:4}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},valueLabels:{format:v=>v,color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
 
   const dorms=data.filter(d=>d.nm===0&&d.qf>0);
   const dv=['A','B','C'].map(c=>dorms.filter(d=>d.c===c).reduce((s,d)=>s+d.vf,0));
@@ -1205,7 +1316,7 @@ function buildServices(data) {
 
   const colors = sl.map(x => SVC_C[x.k]||'#6B6960');
   mkC('cSD',{type:'doughnut',data:{labels:sl.map(x=>x.k),datasets:[{data:sl.map(x=>x.v),backgroundColor:colors,hoverOffset:6,borderWidth:2,borderColor:'#FFFFFF'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'50%',plugins:{legend:{position:'right',labels:{color:TICK,font:{size:10},padding:8,boxWidth:10}}},tooltip:{callbacks:{label:ctx=>fN(ctx.raw)}}}});
-  mkC('cSM',{type:'bar',data:{labels:sl.map(x=>x.k.length>18?x.k.slice(0,16)+'…':x.k),datasets:[{data:sl.map(x=>x.n),backgroundColor:colors,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:TICK,font:{size:9}}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
+  mkC('cSM',{type:'bar',data:{labels:sl.map(x=>x.k.length>18?x.k.slice(0,16)+'…':x.k),datasets:[{data:sl.map(x=>x.n),backgroundColor:colors,borderRadius:3}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},valueLabels:{format:v=>v,color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK,font:{size:9}}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
 
   const tv = sl.reduce((s,x)=>s+x.v,0)||1;
   const t=$('tSV');
@@ -1312,7 +1423,7 @@ function buildMensuel(data) {
   mkC('cMensVal',{type:'bar',data:{labels,datasets:[
     {type:'bar',label:'Valeur (FCFA)',data:vals,backgroundColor:'#FF7900',borderRadius:4,yAxisID:'y'},
     {type:'line',label:'Quantité',data:qtes,borderColor:'#4BB4E6',backgroundColor:'#4BB4E6',borderWidth:2,tension:.3,pointRadius:4,pointBackgroundColor:'#4BB4E6',yAxisID:'y1'}
-  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:TICK,font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?fN(ctx.raw):f0(ctx.raw)+' unités'}}},scales:{
+  ]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{position:'top',labels:{color:TICK,font:{size:11}}},tooltip:{callbacks:{label:ctx=>ctx.datasetIndex===0?fN(ctx.raw):f0(ctx.raw)+' unités'}},valueLabels:{datasetIndex:0,format:v=>fM(v),color:'#18180F',yOffset:-10}},scales:{
     x:{grid:{display:false},ticks:{color:TICK}},
     y:{position:'left',grid:{color:GRID},ticks:{color:TICK,callback:v=>v>=1e9?(v/1e9).toFixed(1)+'Md':v>=1e6?(v/1e6).toFixed(0)+'M':v}},
     y1:{position:'right',grid:{display:false},ticks:{color:TICK,callback:v=>v>=1e6?(v/1e6).toFixed(1)+'M':v>=1e3?(v/1e3).toFixed(0)+'k':v}}
@@ -1372,7 +1483,7 @@ function buildCorrelation(data) {
 
   const nbSvc=items.map(a=>a.nbSvc);
   const dist=[1,2,3,4,5,6,7].map(n=>nbSvc.filter(x=>x===n).length);
-  mkC('cCR',{type:'bar',data:{labels:['1','2','3','4','5','6','7'],datasets:[{data:dist,backgroundColor:PALETTE,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>`${ctx[0].label} service(s)`,label:ctx=>`${ctx.raw} articles`}}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
+  mkC('cCR',{type:'bar',data:{labels:['1','2','3','4','5','6','7'],datasets:[{data:dist,backgroundColor:PALETTE,borderRadius:4}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},tooltip:{callbacks:{title:ctx=>`${ctx[0].label} service(s)`,label:ctx=>`${ctx.raw} articles`}},valueLabels:{format:v=>v,color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
 }
 
 // ══════════════════════════════════════
@@ -1398,10 +1509,10 @@ function buildDormants(data) {
   set('dC', items.length);
   set('dV', fN(items.reduce((s,d)=>s+d.vf,0)));
 
-  mkC('cDC',{type:'bar',data:{labels:['A','B','C'],datasets:[{data:['A','B','C'].map(c=>items.filter(d=>d.c===c).length),backgroundColor:['#50BE87','#4BB4E6','#6b7280'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
+  mkC('cDC',{type:'bar',data:{labels:['A','B','C'],datasets:[{data:['A','B','C'].map(c=>items.filter(d=>d.c===c).length),backgroundColor:['#50BE87','#4BB4E6','#6b7280'],borderRadius:4}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},valueLabels:{format:v=>v,color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
 
   const AB=[{l:'0',fn:d=>d.mx===0},{l:'1–6',fn:d=>d.mx>0&&d.mx<=6},{l:'7–12',fn:d=>d.mx>6&&d.mx<=12},{l:'13–24',fn:d=>d.mx>12&&d.mx<=24},{l:'>24',fn:d=>d.mx>24}];
-  mkC('cDA',{type:'bar',data:{labels:AB.map(b=>b.l),datasets:[{data:AB.map(b=>items.filter(b.fn).length),backgroundColor:['#50BE87','#4BB4E6','#FFD200','#FFB400','#CD3C14'],borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
+  mkC('cDA',{type:'bar',data:{labels:AB.map(b=>b.l),datasets:[{data:AB.map(b=>items.filter(b.fn).length),backgroundColor:['#50BE87','#4BB4E6','#FFD200','#FFB400','#CD3C14'],borderRadius:4}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},valueLabels:{format:v=>v,color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK}}}}});
 
   const t=$('tDO');
   t.innerHTML='<tr><th>#</th><th>Article</th><th>Description</th><th>Cls</th><th>Famille</th><th>Q.Final</th><th>Val.Finale</th><th>Âge max</th></tr>';
@@ -1433,12 +1544,32 @@ function buildRupturesA(data) {
 function buildAge(data) {
   const B=[{l:'0 mois',c:'#50BE87',fn:d=>d.mx===0},{l:'1–6 mois',c:'#4BB4E6',fn:d=>d.mx>0&&d.mx<=6},{l:'7–12 mois',c:'#FFD200',fn:d=>d.mx>6&&d.mx<=12},{l:'13–24 mois',c:'#FFB400',fn:d=>d.mx>12&&d.mx<=24},{l:'>24 mois',c:'#CD3C14',fn:d=>d.mx>24}];
   mkC('cAGD',{type:'doughnut',data:{labels:B.map((b,i)=>`${b.l} · ${data.filter(b.fn).length}`),datasets:[{data:B.map(b=>data.filter(b.fn).length),backgroundColor:B.map(b=>b.c),hoverOffset:6,borderWidth:2,borderColor:'#FFFFFF'}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{position:'bottom',labels:{color:TICK,font:{size:10},padding:8,boxWidth:10}}}}});
-  mkC('cAGV',{type:'bar',data:{labels:B.map(b=>b.l),datasets:[{data:B.map(b=>+(data.filter(b.fn).reduce((s,d)=>s+d.vf,0)/1e9).toFixed(3)),backgroundColor:B.map(b=>b.c),borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(3)+' Md FCFA'}}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v.toFixed(2)+'Md'}}}}});
+  mkC('cAGV',{type:'bar',data:{labels:B.map(b=>b.l),datasets:[{data:B.map(b=>+(data.filter(b.fn).reduce((s,d)=>s+d.vf,0)/1e9).toFixed(3)),backgroundColor:B.map(b=>b.c),borderRadius:4}]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw.toFixed(3)+' Md FCFA'}},valueLabels:{format:v=>v.toFixed(2)+'Md',color:'#18180F',yOffset:-10}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v.toFixed(2)+'Md'}}}}});
 
   const t30=data.filter(d=>d.mx>0).sort((a,b)=>b.mx-a.mx).slice(0,30);
   const t=$('tAGE');
   t.innerHTML='<tr><th>Article</th><th>Description</th><th>Cls</th><th>Famille</th><th>M1</th><th>M2</th><th>M3</th><th>Âge max</th><th>Q.Final</th><th>Val.Finale</th></tr>';
   t30.forEach(d=>{const ac=d.mx>36?'b-rd':d.mx>24?'b-am':'b-gn';t.innerHTML+=`<tr><td style="font-family:monospace;font-size:10px;color:#6B6960">${d.a}</td><td>${d.d}</td><td><span class="badge ${clBadge(d.c)}">${d.c||'?'}</span></td><td style="color:#8A877D">${d.k}</td><td style="color:#8A877D">${d.m1}</td><td style="color:#8A877D">${d.m2}</td><td style="color:#8A877D">${d.m3}</td><td><span class="badge ${ac}">${d.mx} mois</span></td><td>${fM(d.qf)}</td><td>${fN(d.vf)}</td></tr>`;});
+}
+
+function buildAgeMensuel() {
+  const rows = AGE_MENSUEL_G;
+  if (!rows || !rows.length) {
+    $('tAGM').innerHTML = '<tr><td class="empty-td">Aucune donnée — importez un fichier contenant l\'onglet "Age des stocks Mensuel"</td></tr>';
+    return;
+  }
+  const labels = rows.map(m => m.mois);
+  const mkDs = (key, label, color) => ({label, data: rows.map(m => +(m[key]/1e6).toFixed(1)), backgroundColor: color, borderRadius: 2});
+  mkC('cAGM',{type:'bar',data:{labels,datasets:[
+    mkDs('b03','0–3 mois','#4BB4E6'),
+    mkDs('b36','3–6 mois','#FFB400'),
+    mkDs('b6_1','6 mois–1 an','#FFD200'),
+    mkDs('b1p','1 an +','#50BE87'),
+  ]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:TICK,font:{size:10},padding:10,boxWidth:10}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+' : '+ctx.raw+' M FCFA'}},valueLabels:{format:v=>Math.round(v)+'M',color:'#18180F',minValue:150,yOffset:4}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:TICK}},y:{stacked:true,grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'M'}}}}});
+
+  const t=$('tAGM');
+  t.innerHTML='<tr><th>Mois</th><th>0–3 mois</th><th>3–6 mois</th><th>6 mois–1 an</th><th>1 an +</th><th>Total</th></tr>';
+  rows.forEach(m=>{const tot=m.b03+m.b36+m.b6_1+m.b1p;t.innerHTML+=`<tr><td>${m.mois}</td><td style="color:#6B6960">${fN(m.b03)}</td><td style="color:#6B6960">${fN(m.b36)}</td><td style="color:#6B6960">${fN(m.b6_1)}</td><td style="color:#6B6960">${fN(m.b1p)}</td><td><strong>${fN(tot)}</strong></td></tr>`;});
 }
 
 // ══════════════════════════════════════
@@ -1575,6 +1706,41 @@ function parseWB(wb, fname) {
       if(mag){if(!rMag[mag])rMag[mag]={q:0,v:0,n:0};rMag[mag].q+=sN(r[6]);rMag[mag].v+=sN(r[8]);rMag[mag].n++;}
     });
 
+    // Âge des stocks — historique mensuel (onglet "Age des stocks Mensuel")
+    const newAgeMensuel=[];
+    const wsAM=wb.Sheets['Age des stocks Mensuel'];
+    if(wsAM) XLSX.utils.sheet_to_json(wsAM,{header:1,defval:null}).slice(1).forEach(r=>{
+      const mois=sS(r[0]).trim(); if(!mois)return;
+      newAgeMensuel.push({mois, b03:sN(r[1]), b36:sN(r[2]), b6_1:sN(r[3]), b1p:sN(r[4])});
+    });
+
+    // Taux de rotation — historique mensuel (onglet "Taux de rotation Mensuel"), agrégé par mois
+    const rotAgg={};
+    const MONTHS_FR=['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+    const wsTR=wb.Sheets['Taux de rotation Mensuel'];
+    if(wsTR) XLSX.utils.sheet_to_json(wsTR,{header:1,defval:null}).slice(1).forEach(r=>{
+      const dt=r[0]; if(dt===null||dt===undefined||dt==='')return;
+      let y, mo; // année, mois (0-indexé)
+      if (dt instanceof Date) {
+        y = dt.getFullYear(); mo = dt.getMonth();
+      } else if (typeof dt === 'number') {
+        const dc = XLSX.SSF.parse_date_code(dt);
+        y = dc.y; mo = dc.m - 1;
+      } else {
+        const d = new Date(dt);
+        y = d.getFullYear(); mo = d.getMonth();
+      }
+      const key=y+'-'+String(mo+1).padStart(2,'0');
+      if(!rotAgg[key])rotAgg[key]={mois:MONTHS_FR[mo],ord:y*12+mo,qi:0,qf:0,qc:0,vi:0,vf:0,vc:0};
+      rotAgg[key].qi+=sN(r[3]); rotAgg[key].qf+=sN(r[19]); rotAgg[key].qc+=sN(r[9]);
+      rotAgg[key].vi+=sN(r[4]); rotAgg[key].vf+=sN(r[20]); rotAgg[key].vc+=sN(r[10]);
+    });
+    const newRotationMensuel=Object.values(rotAgg).sort((a,b)=>a.ord-b.ord).map(m=>{
+      const avgQ=(m.qi+m.qf)/2;
+      const taux=avgQ>0?Math.abs(m.qc)/avgQ:0;
+      return {mois:m.mois, qi:Math.round(m.qi), qf:Math.round(m.qf), qc:Math.round(m.qc), vi:Math.round(m.vi), vf:Math.round(m.vf), vc:Math.round(m.vc), taux:+taux.toFixed(4)};
+    });
+
     const newD=[];
     const seen=new Set();
     dashRows.forEach(r=>{
@@ -1607,6 +1773,7 @@ function parseWB(wb, fname) {
     const newAS=Object.entries(sA).map(([a,sv])=>({a,d:descMap[a]||'',c:clsMap[a]||'',svcs:Object.fromEntries(Object.entries(sv).map(([k,v])=>[k,Math.round(v)]))})).sort((a,b)=>Object.values(b.svcs).reduce((s,v)=>s+v,0)-Object.values(a.svcs).reduce((s,v)=>s+v,0)).slice(0,100);
 
     D = newD; SVC_G = newSVC; PRE_G = newPRE; PSA_G = newPSA; RET_G = newRET; ART_SVC_G = newAS; FD = D;
+    AGE_MENSUEL_G = newAgeMensuel; ROTATION_MENSUEL_G = newRotationMensuel;
 
     $('uinfo').innerHTML = `<strong>${fname}</strong> · ${D.length} articles · ${Object.keys(SVC_G).length} services`;
     $('uok').textContent = '⏳ Synchronisation…';
@@ -1622,6 +1789,8 @@ function parseWB(wb, fname) {
       svc: SVC_G,
       pre: PRE_G,
       psa: PSA_G,
+      age_mensuel: AGE_MENSUEL_G,
+      rotation_mensuel: ROTATION_MENSUEL_G,
       ret_mag: RET_G,
       art_svc: ART_SVC_G,
       art_month: ART_MONTH,
@@ -1692,6 +1861,8 @@ fbLoad(val => {
   SVC_G = val.svc;
   PRE_G = val.pre || {};
   PSA_G = val.psa || {};
+  AGE_MENSUEL_G = val.age_mensuel || [];
+  ROTATION_MENSUEL_G = val.rotation_mensuel || [];
   RET_G = val.ret_mag || {};
   ART_SVC_G = val.art_svc || [];
   // Mettre à jour ART_MONTH si disponible dans Firebase
