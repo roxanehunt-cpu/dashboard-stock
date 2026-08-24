@@ -312,6 +312,7 @@ tbody tr:last-child td{border-bottom:none}
   <div class="sb-section">Mouvement</div>
   <div class="sb-item" onclick="go('rotation')"><span class="si">🔄</span>Taux de rotation</div>
   <div class="sb-item" onclick="go('rotation_mensuel')"><span class="si">📈</span>Taux de rotation mensuel</div>
+  <div class="sb-item" onclick="go('dispo_mensuel')"><span class="si">📉</span>Conso / Dispo mensuel</div>
   <div class="sb-item" onclick="go('frequence')"><span class="si">⚡</span>Fréquence mouvement</div>
   <div class="sb-item" onclick="go('services')"><span class="si">🏭</span>Conso par service</div>
   <div class="sb-item" onclick="go('prestataires')"><span class="si">🧰</span>Conso par prestataire</div>
@@ -528,6 +529,21 @@ tbody tr:last-child td{border-bottom:none}
     </div>
   </div>
 
+  <!-- CONSO / DISPO MENSUEL -->
+  <div id="pg-dispo_mensuel" class="page">
+    <div class="alert al-am">Disponibilité = Stock Initial + Entrées (Réception + Retour) · valeurs en Md FCFA, sur l'ensemble du périmètre.</div>
+    <div class="card">
+      <div class="card-hd"><div><h2>Stock initial, Entrée, Sortie et Disponibilité par mois</h2></div></div>
+      <div class="card-bd"><div class="ch" style="height:360px"><canvas id="cDISPM"></canvas></div></div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><h2>Détail mensuel</h2></div>
+        <div class="card-hd-r"><button class="btn btn-csv" onclick="exportTbl('tDISPM','dispo_mensuel')">⬇ CSV</button><button class="btn btn-xl" onclick="exportTblX('tDISPM','Dispo_Mensuel')">⬇ Excel</button></div>
+      </div>
+      <div class="card-bd p0"><div class="tscroll"><table id="tDISPM"></table></div></div>
+    </div>
+  </div>
+
   <!-- FREQUENCE -->
   <div id="pg-frequence" class="page">
     <div class="g3">
@@ -712,6 +728,12 @@ tbody tr:last-child td{border-bottom:none}
         <div class="card-hd"><div><h2>Valeur par tranche d'âge (Md FCFA)</h2></div></div>
         <div class="card-bd"><div class="ch" style="height:220px"><canvas id="cAGV"></canvas></div></div>
       </div>
+    </div>
+    <div class="card">
+      <div class="card-hd"><div><h2>Top 5 des valeurs immobilisées</h2><p>Articles représentant la plus forte valeur de stock actuellement en dépôt</p></div>
+        <div class="card-hd-r"><button class="btn btn-csv" onclick="exportTbl('tTOP5IMMO','top5_valeurs_immobilisees')">⬇ CSV</button><button class="btn btn-xl" onclick="exportTblX('tTOP5IMMO','Top5_Valeurs_Immobilisees')">⬇ Excel</button></div>
+      </div>
+      <div class="card-bd p0"><div class="tscroll"><table id="tTOP5IMMO"></table></div></div>
     </div>
     <div class="card">
       <div class="card-hd"><div><h2>Top 30 articles les plus anciens</h2></div>
@@ -987,9 +1009,12 @@ function updatePeriodLabel() {
 
 // Détecte la période depuis le nom du fichier (ex: "Dashboard_Stock_Juillet_2026.xlsx")
 // ou depuis le nom d'un onglet du type "Age Juin" / "Age Juillet" etc.
+function stripAccents(s) {
+  return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
 function detectPeriodFromFile(fname, sheetNames) {
-  const txt = (fname + ' ' + (sheetNames||[]).join(' ')).toLowerCase();
-  const moisIdx = MOIS_FR.findIndex(m => txt.includes(m.toLowerCase()));
+  const txt = stripAccents((fname + ' ' + (sheetNames||[]).join(' ')).toLowerCase());
+  const moisIdx = MOIS_FR.findIndex(m => txt.includes(stripAccents(m.toLowerCase())));
   const yearMatch = txt.match(/20\d{2}/);
   if (moisIdx >= 0) currentPeriod.month = moisIdx;
   if (yearMatch) currentPeriod.year = +yearMatch[0];
@@ -1107,7 +1132,7 @@ function updateKPIs(data) {
 // ══════════════════════════════════════
 // REDRAW — uniquement la page visible (perf)
 // ══════════════════════════════════════
-const ALL_PAGES = ['evolution','pareto','rotation','rotation_mensuel','frequence','services','prestataires','mensuel','correlation','zeroconso','dormants','ruptures','age','age_mensuel','extraction'];
+const ALL_PAGES = ['evolution','pareto','rotation','rotation_mensuel','dispo_mensuel','frequence','services','prestataires','mensuel','correlation','zeroconso','dormants','ruptures','age','age_mensuel','extraction'];
 let currentPage = 'evolution';
 let dirtyPages = new Set(); // pages à reconstruire au prochain affichage
 
@@ -1116,6 +1141,7 @@ const BUILDERS = {
   pareto: buildPareto,
   rotation: buildRotation,
   rotation_mensuel: buildRotationMensuel,
+  dispo_mensuel: buildDispoMensuel,
   frequence: buildFrequence,
   services: buildServices,
   prestataires: buildPrestataires,
@@ -1256,11 +1282,36 @@ function buildRotationMensuel() {
   }
   const labels = rows.map(m => m.mois);
   const taux = rows.map(m => Math.round(m.taux*100));
-  mkC('cROTM',{type:'line',data:{labels,datasets:[{label:'Taux de rotation',data:taux,borderColor:'#FF7900',backgroundColor:'rgba(255,121,0,.12)',fill:true,tension:.3,pointBackgroundColor:'#FF7900',pointRadius:4}]},plugins:[valueLabelsPlugin,targetLinePlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' %'}},valueLabels:{format:v=>v+'%',color:'#CC4D00',yOffset:-12},targetLine:{value:10,label:'Objectif : 10 %',color:'#CD3C14'}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'%'}}}}});
+  mkC('cROTM',{type:'line',data:{labels,datasets:[{label:'Taux de rotation',data:taux,borderColor:'#FF7900',backgroundColor:'rgba(255,121,0,.12)',fill:true,tension:.3,pointBackgroundColor:'#FF7900',pointRadius:4}]},plugins:[valueLabelsPlugin,targetLinePlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:24}},plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+' %'}},valueLabels:{format:v=>v+'%',color:'#CC4D00',yOffset:-12},targetLine:{value:10,label:'Objectif : 10 %',color:'#CD3C14'}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{min:0,grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'%'}}}}});
 
   const t=$('tROTM');
   t.innerHTML='<tr><th>Mois</th><th>Qté initiale</th><th>Qté finale</th><th>Qté conso</th><th>Taux de rotation</th><th>Valeur initiale</th><th>Valeur finale</th><th>Valeur conso</th></tr>';
   rows.forEach(m=>{const tp=Math.round((m.taux||0)*100);const hasQ=(m.qi!==undefined&&m.qi!==null);t.innerHTML+=`<tr><td>${m.mois}</td><td style="color:#6B6960">${hasQ?f0(m.qi):'—'}</td><td style="color:#6B6960">${hasQ?f0(m.qf):'—'}</td><td class="neg">${hasQ?f0(Math.abs(m.qc)):'—'}</td><td><span class="badge ${tp>=20?'b-gn':tp>=10?'b-am':'b-rd'}">${tp} %</span></td><td style="color:#8A877D;font-size:10px">${fN(m.vi||0)}</td><td style="color:#8A877D;font-size:10px">${fN(m.vf||0)}</td><td style="color:#8A877D;font-size:10px">${fN(Math.abs(m.vc||0))}</td></tr>`;});
+}
+
+function buildDispoMensuel() {
+  const rows = ROTATION_MENSUEL_G;
+  if (!rows || !rows.length || rows[0].dispo === undefined) {
+    $('tDISPM').innerHTML = '<tr><td class="empty-td">Aucune donnée — réimportez le fichier Excel pour calculer la disponibilité mensuelle</td></tr>';
+    return;
+  }
+  const labels = rows.map(m => m.mois);
+  const toMd = v => +((v||0)/1e9).toFixed(2);
+  const dsInit = rows.map(m => toMd(m.vi));
+  const dsEntree = rows.map(m => toMd((m.ve||0)+(m.vr||0)));
+  const dsSortie = rows.map(m => toMd(Math.abs(m.vc)));
+  const dsDispo = rows.map(m => toMd(m.dispo));
+
+  mkC('cDISPM',{type:'bar',data:{labels,datasets:[
+    {label:'Stock initial',data:dsInit,backgroundColor:'#4BB4E6',borderRadius:3},
+    {label:'Entrée (Récep.+Retour)',data:dsEntree,backgroundColor:'#50BE87',borderRadius:3},
+    {label:'Sortie (Conso)',data:dsSortie,backgroundColor:'#CD3C14',borderRadius:3},
+    {label:'Disponibilité',data:dsDispo,backgroundColor:'#FF7900',borderRadius:3},
+  ]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:22}},plugins:{legend:{position:'top',labels:{color:TICK,font:{size:10.5},padding:10,boxWidth:10}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+' : '+ctx.raw+' Md FCFA'}},valueLabels:{format:v=>v.toFixed(1),color:'#18180F',yOffset:-8}},scales:{x:{grid:{display:false},ticks:{color:TICK}},y:{grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'Md'}}}}});
+
+  const t=$('tDISPM');
+  t.innerHTML='<tr><th>Mois</th><th>Stock initial</th><th>Entrées (Récep.+Retour)</th><th>Sortie (Conso)</th><th>Disponibilité</th><th>Taux conso/dispo</th></tr>';
+  rows.forEach(m=>{const tp=Math.round((m.tauxDispo||0)*100);t.innerHTML+=`<tr><td>${m.mois}</td><td style="color:#6B6960">${fN(m.vi)}</td><td style="color:#6B6960">${fN((m.ve||0)+(m.vr||0))}</td><td class="neg">${fN(Math.abs(m.vc))}</td><td><strong>${fN(m.dispo)}</strong></td><td><span class="badge ${tp>=60?'b-rd':tp>=30?'b-am':'b-gn'}">${tp} %</span></td></tr>`;});
 }
 
 // ══════════════════════════════════════
@@ -1550,6 +1601,16 @@ function buildAge(data) {
   const t=$('tAGE');
   t.innerHTML='<tr><th>Article</th><th>Description</th><th>Cls</th><th>Famille</th><th>M1</th><th>M2</th><th>M3</th><th>Âge max</th><th>Q.Final</th><th>Val.Finale</th></tr>';
   t30.forEach(d=>{const ac=d.mx>36?'b-rd':d.mx>24?'b-am':'b-gn';t.innerHTML+=`<tr><td style="font-family:monospace;font-size:10px;color:#6B6960">${d.a}</td><td>${d.d}</td><td><span class="badge ${clBadge(d.c)}">${d.c||'?'}</span></td><td style="color:#8A877D">${d.k}</td><td style="color:#8A877D">${d.m1}</td><td style="color:#8A877D">${d.m2}</td><td style="color:#8A877D">${d.m3}</td><td><span class="badge ${ac}">${d.mx} mois</span></td><td>${fM(d.qf)}</td><td>${fN(d.vf)}</td></tr>`;});
+
+  const top5Immo = data.filter(d=>d.vf>0).sort((a,b)=>b.vf-a.vf).slice(0,5);
+  const totalVF = data.reduce((s,d)=>s+Math.max(d.vf,0),0)||1;
+  const t5=$('tTOP5IMMO');
+  t5.innerHTML='<tr><th>Rang</th><th>Article</th><th>Description</th><th>Cls</th><th>Âge</th><th>Valeur immobilisée</th><th>Part du stock</th></tr>';
+  top5Immo.forEach((d,i)=>{
+    const p=(d.vf/totalVF*100);
+    const ac=d.mx>24?'b-rd':d.mx>12?'b-am':'b-gn';
+    t5.innerHTML+=`<tr><td style="font-weight:700;color:#FF7900">#${i+1}</td><td style="font-family:monospace;font-size:10px;color:#6B6960">${d.a}</td><td>${d.d}</td><td><span class="badge ${clBadge(d.c)}">${d.c||'?'}</span></td><td><span class="badge ${ac}">${d.mx} mois</span></td><td style="font-weight:700">${fN(d.vf)}</td><td><div style="display:flex;align-items:center;gap:6px"><div class="pw" style="width:70px"><div class="pf" style="width:${p}%;background:#FF7900"></div></div><span style="font-size:10px;color:#6B6960">${fP(p)}</span></div></td></tr>`;
+  });
 }
 
 function buildAgeMensuel() {
@@ -1565,7 +1626,7 @@ function buildAgeMensuel() {
     mkDs('b36','3–6 mois','#FFB400'),
     mkDs('b6_1','6 mois–1 an','#FFD200'),
     mkDs('b1p','1 an +','#50BE87'),
-  ]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:TICK,font:{size:10},padding:10,boxWidth:10}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+' : '+ctx.raw+' M FCFA'}},valueLabels:{format:v=>Math.round(v)+'M',color:'#18180F',minValue:150,yOffset:4}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:TICK}},y:{stacked:true,grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'M'}}}}});
+  ]},plugins:[valueLabelsPlugin],options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{color:TICK,font:{size:10},padding:10,boxWidth:10}},tooltip:{callbacks:{label:ctx=>ctx.dataset.label+' : '+ctx.raw+' M FCFA'}},valueLabels:{format:v=>Math.round(v)+'M',color:'#18180F',minValue:0.5,yOffset:0}},scales:{x:{stacked:true,grid:{display:false},ticks:{color:TICK}},y:{stacked:true,grid:{color:GRID},ticks:{color:TICK,callback:v=>v+'M'}}}}});
 
   const t=$('tAGM');
   t.innerHTML='<tr><th>Mois</th><th>0–3 mois</th><th>3–6 mois</th><th>6 mois–1 an</th><th>1 an +</th><th>Total</th></tr>';
@@ -1652,7 +1713,8 @@ function parseWB(wb, fname) {
     });
 
     const ageMap={};
-    const wsAG=wb.Sheets['Age Juin'];
+    const ageSheetName = wb.SheetNames.find(n => /^age\s/i.test(n.trim()) && n.trim()!=='Age des stocks Mensuel');
+    const wsAG = ageSheetName ? wb.Sheets[ageSheetName] : null;
     if(wsAG) XLSX.utils.sheet_to_json(wsAG,{header:1,defval:null}).slice(1).forEach(r=>{
       const a=sS(r[1]); if(!a)return;
       const m1=sN(r[3]),m2=sN(r[4]),m3=sN(r[5]);
@@ -1731,14 +1793,17 @@ function parseWB(wb, fname) {
         y = d.getFullYear(); mo = d.getMonth();
       }
       const key=y+'-'+String(mo+1).padStart(2,'0');
-      if(!rotAgg[key])rotAgg[key]={mois:MONTHS_FR[mo],ord:y*12+mo,qi:0,qf:0,qc:0,vi:0,vf:0,vc:0};
+      if(!rotAgg[key])rotAgg[key]={mois:MONTHS_FR[mo],ord:y*12+mo,qi:0,qf:0,qc:0,vi:0,vf:0,vc:0,ve:0,vr:0};
       rotAgg[key].qi+=sN(r[3]); rotAgg[key].qf+=sN(r[19]); rotAgg[key].qc+=sN(r[9]);
       rotAgg[key].vi+=sN(r[4]); rotAgg[key].vf+=sN(r[20]); rotAgg[key].vc+=sN(r[10]);
+      rotAgg[key].ve+=sN(r[6]); rotAgg[key].vr+=sN(r[8]);
     });
     const newRotationMensuel=Object.values(rotAgg).sort((a,b)=>a.ord-b.ord).map(m=>{
       const avgQ=(m.qi+m.qf)/2;
       const taux=avgQ>0?Math.abs(m.qc)/avgQ:0;
-      return {mois:m.mois, qi:Math.round(m.qi), qf:Math.round(m.qf), qc:Math.round(m.qc), vi:Math.round(m.vi), vf:Math.round(m.vf), vc:Math.round(m.vc), taux:+taux.toFixed(4)};
+      const dispo=m.vi+m.ve+m.vr;
+      const tauxDispo=dispo>0?Math.abs(m.vc)/dispo:0;
+      return {mois:m.mois, qi:Math.round(m.qi), qf:Math.round(m.qf), qc:Math.round(m.qc), vi:Math.round(m.vi), vf:Math.round(m.vf), vc:Math.round(m.vc), ve:Math.round(m.ve), vr:Math.round(m.vr), dispo:Math.round(dispo), taux:+taux.toFixed(4), tauxDispo:+tauxDispo.toFixed(4)};
     });
 
     const newD=[];
