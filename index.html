@@ -277,7 +277,7 @@ tbody tr:last-child td{border-bottom:none}
   <button class="burger" onclick="toggleSidebar()">☰</button>
   <div class="tn-brand tn-brand-wide">
     <div class="tn-logo">📦</div>
-    <div><div class="tn-title">Dashboard Stock Technique</div><div class="tn-sub">Juin 2026</div></div>
+    <div><div class="tn-title">Dashboard Stock Technique</div><div class="tn-sub" id="tnSub">Juin 2026</div></div>
   </div>
   <div class="tn-right">
     <div style="position:relative">
@@ -1004,6 +1004,7 @@ function applyPeriod() {
 
 function updatePeriodLabel() {
   set('periodBtn', `📅 ${MOIS_FR[currentPeriod.month]} ${currentPeriod.year}`);
+  set('tnSub', `${MOIS_FR[currentPeriod.month]} ${currentPeriod.year}`);
   document.title = `Dashboard Stock Technique · ${MOIS_FR[currentPeriod.month]} ${currentPeriod.year}`;
 }
 
