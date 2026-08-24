@@ -8,17 +8,19 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 /* ══════ RESET ══════ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow-x:hidden;max-width:100%}
-body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;font-size:13px;background:#F5F5F2;color:#18180F;-webkit-font-smoothing:antialiased;overflow:hidden;max-width:100vw}
+body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;background:#F1F0F9;color:#18180F;-webkit-font-smoothing:antialiased;overflow:hidden;max-width:100vw}
 
 /* ══════ LAYOUT ══════ */
 .app{display:grid;grid-template-rows:48px 1fr;height:100vh;height:100dvh;max-width:100vw;overflow-x:hidden}
-.topnav{background:#FFFFFF;border-bottom:1px solid #E3E1DA;display:flex;align-items:center;gap:0;padding:0;z-index:500;position:relative}
+.topnav{background:#FFFFFF;box-shadow:0 1px 6px rgba(30,33,44,.05);display:flex;align-items:center;gap:0;padding:0;z-index:500;position:relative}
 .body{display:grid;grid-template-columns:minmax(220px,220px) minmax(0,1fr);overflow:hidden;height:100%;position:relative;z-index:1;max-width:100vw}
-.sidebar{background:#FFFFFF;border-right:1px solid #E3E1DA;overflow-y:auto;display:flex;flex-direction:column}
+.sidebar{background:#FFFFFF;box-shadow:1px 0 6px rgba(30,33,44,.04);overflow-y:auto;display:flex;flex-direction:column}
 .content{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px;background:#F5F5F2;min-width:0}
 
 /* ══════ MOBILE ══════ */
@@ -139,16 +141,16 @@ html.force-mobile .tn-title {font-size:12px}
 
 /* ══════ SIDEBAR ══════ */
 .sb-section{padding:14px 14px 5px;font-size:9px;font-weight:700;color:#9B9890;letter-spacing:.12em;text-transform:uppercase}
-.sb-item{display:flex;align-items:center;gap:8px;padding:7px 14px;color:#6B6960;font-size:12px;cursor:pointer;border-left:2px solid transparent;transition:.1s;user-select:none}
-.sb-item:hover{background:#FAFAF7;color:#18180F}
-.sb-item.on{color:#CC4D00;border-left-color:#FF7900;background:#FFF3EC;font-weight:600}
+.sb-item{display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 8px;border-radius:10px;color:#6B6960;font-size:12px;cursor:pointer;border-left:none;transition:.15s;user-select:none}
+.sb-item:hover{background:#F4F4FB;color:#18180F}
+.sb-item.on{color:#CC4D00;background:#FFEEE2;font-weight:600}
 .sb-item .si{font-size:13px;width:16px;text-align:center;flex-shrink:0}
 .sb-item .sc{margin-left:auto;background:#E3E1DA;color:#8A877D;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:20px;text-align:center}
 .sb-item.on .sc{background:#FFE0CC;color:#CC4D00}
 .sb-foot{margin-top:auto;padding:12px 14px;border-top:1px solid #E3E1DA;color:#9B9890;font-size:10px;line-height:1.7}
 
 /* ══════ UPLOAD BAR ══════ */
-.upload-bar{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.upload-bar{background:#FFFFFF;border:none;box-shadow:0 4px 16px rgba(46,42,90,.06);border-radius:20px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .upload-btn{background:#FF7900;color:#fff;border:none;border-radius:4px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px}
 .upload-btn:hover{background:#F16E00}
 .upload-info{color:#6B6960;font-size:11px;flex:1}
@@ -160,36 +162,34 @@ html.force-mobile .tn-title {font-size:12px}
 .filter-strip{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .fg{display:flex;flex-direction:column;gap:3px}
 .fg label{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.08em}
-.fg select,.fg input{background:#F5F5F2;border:1px solid #E3E1DA;border-radius:4px;padding:5px 8px;font-size:11px;color:#3A3930;min-width:120px;cursor:pointer;appearance:none}
+.fg select,.fg input{background:#F7F6FC;border:none;box-shadow:none;border-radius:11px;padding:6px 10px;font-size:11px;color:#3A3930;min-width:120px;cursor:pointer;appearance:none}
 .fg select:focus,.fg input:focus{outline:none;border-color:#FF7900}
-.fg select option{background:#F5F5F2}
+.fg select option{background:#FFFFFF}
 .f-sep{width:1px;height:28px;background:#E3E1DA;margin:0 4px}
 .f-count{font-size:11px;color:#6B6960;white-space:nowrap}
 .f-count strong{color:#CC4D00}
 .fbtns{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:.1s;white-space:nowrap}
-.btn-ghost{background:transparent;border-color:#E3E1DA;color:#6B6960}
-.btn-ghost:hover{border-color:#9B9890;color:#18180F}
-.btn-csv{background:#ECFDF5;border-color:#A7E8C8;color:#0A6E31}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:11px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap}
+.btn-ghost{background:#F4F4F8;border-color:transparent;color:#6B6960}
+.btn-ghost:hover{background:#EBEBF2;color:#18180F}
+.btn-csv{background:#ECFDF5;border-color:transparent;color:#0A6E31}
 .btn-csv:hover{background:#D7F5E5}
-.btn-xl{background:#EAF6FC;border-color:#A8DCEF;color:#085EBD}
+.btn-xl{background:#EAF6FC;border-color:transparent;color:#085EBD}
 .btn-xl:hover{background:#D5EDF8}
 
 /* ══════ KPI ROW ══════ */
-.kpi-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:12px}
-.kpi{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;padding:12px 14px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,15,.04)}
-.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
-.kpi.or::after{background:#FF7900}.kpi.rd::after{background:#CD3C14}.kpi.gn::after{background:#50BE87}.kpi.am::after{background:#FFB400}.kpi.bl::after{background:#4BB4E6}.kpi.gy::after{background:#6b7280}
-.kpi-l{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
-.kpi-v{font-size:22px;font-weight:800;color:#18180F;letter-spacing:-.5px;line-height:1}
-.kpi-v.or{color:#CC4D00}.kpi-v.rd{color:#CD3C14}.kpi-v.gn{color:#0A6E31}.kpi-v.am{color:#B8860B}.kpi-v.bl{color:#085EBD}
-.kpi-s{font-size:10px;color:#7C7A70;margin-top:3px}
+.kpi-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:#F7F6FC;border:none;border-radius:18px;padding:16px 18px;position:relative;overflow:hidden}
+.kpi-l{font-size:9.5px;font-weight:700;color:#8A87A0;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
+.kpi-v{font-size:24px;font-weight:800;color:#18181F;letter-spacing:-.6px;line-height:1}
+.kpi-v.or{color:#CC4D00}.kpi-v.rd{color:#C24A3A}.kpi-v.gn{color:#2E7D5B}.kpi-v.am{color:#B8860B}.kpi-v.bl{color:#3E6FA6}
+.kpi-s{font-size:10px;color:#8A87A0;margin-top:4px}
 
 /* ══════ CARDS ══════ */
-.card{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,15,.04);min-width:0}
-.card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 9px;border-bottom:1px solid #E3E1DA}
-.card-hd h2{font-size:12px;font-weight:600;color:#18180F;letter-spacing:-.1px}
-.card-hd p{font-size:10px;color:#7C7A70;margin-top:1px}
+.card{background:#FFFFFF;border:none;border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:0 4px 16px rgba(46,42,90,.06);min-width:0}
+.card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;border-bottom:none}
+.card-hd h2{font-size:13px;font-weight:700;color:#18181F;letter-spacing:-.1px}
+.card-hd p{font-size:10px;color:#8A87A0;margin-top:2px}
 .card-hd-r{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .card-bd{padding:12px 14px;min-width:0}
 .card-bd.p0{padding:0}
@@ -207,34 +207,34 @@ html.force-mobile .tn-title {font-size:12px}
 .tscroll{overflow-x:auto;max-height:440px;overflow-y:auto}
 .tscroll::-webkit-scrollbar{width:5px;height:5px}
 .tscroll::-webkit-scrollbar-track{background:#F5F5F2}
-.tscroll::-webkit-scrollbar-thumb{background:#E3E1DA;border-radius:3px}
+.tscroll::-webkit-scrollbar-thumb{background:#DCDBE8;border-radius:3px}
 table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:2px solid #E3E1DA;text-align:left;background:#FAFAF7;white-space:nowrap;position:sticky;top:0;z-index:2}
-tbody td{padding:6px 10px;border-bottom:1px solid #EDEBE5;vertical-align:middle;color:#3A3930}
-tbody tr:hover td{background:#FAFAF7}
+thead th{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.06em;padding:9px 12px;border-bottom:1px solid #F0EFF5;text-align:left;background:#FAFAFC;white-space:nowrap;position:sticky;top:0;z-index:2}
+tbody td{padding:7px 12px;border-bottom:1px solid #F5F4F9;vertical-align:middle;color:#3A3930}
+tbody tr:hover td{background:#F8F8FC}
 tbody tr:last-child td{border-bottom:none}
 .empty-td{text-align:center;padding:24px;color:#9B9890;font-style:italic}
 
 /* ══════ BADGES ══════ */
-.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;letter-spacing:.02em}
-.bA{background:#E6F4EF;color:#0A6E31;border:1px solid #B8EBD6}
-.bB{background:#EAF6FC;color:#085EBD;border:1px solid #B5E8F7}
-.bC{background:#F1F0EC;color:#7C7A70;border:1px solid #E3E1DA}
-.b-rd{background:#FDEEEA;color:#CD3C14;border:1px solid #F5C6B8}
-.b-am{background:#FFF8E1;color:#B8860B;border:1px solid #FFE9A8}
-.b-gn{background:#E6F4EF;color:#0A6E31;border:1px solid #B8EBD6}
-.b-or{background:#FFF3EC;color:#CC4D00;border:1px solid #FFD2B3}
+.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.02em}
+.bA{background:#E6F4EF;color:#0A6E31}
+.bB{background:#EAF6FC;color:#085EBD}
+.bC{background:#F1F0F5;color:#7C7A70}
+.b-rd{background:#FDEEEA;color:#CD3C14}
+.b-am{background:#FFF8E1;color:#B8860B}
+.b-gn{background:#E6F4EF;color:#0A6E31}
+.b-or{background:#FFF3EC;color:#CC4D00}
 
 /* ══════ STAT ROW ══════ */
-.stat-row{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #E3E1DA;border-radius:6px;overflow:hidden;margin-bottom:10px;background:#FFFFFF;box-shadow:0 1px 2px rgba(24,24,15,.04)}
-.sc{padding:12px 14px;border-right:1px solid #E3E1DA;text-align:center}
-.sc:last-child{border-right:none;background:#FFF3EC}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);border:none;border-radius:20px;overflow:hidden;margin-bottom:14px;background:#FFFFFF;box-shadow:0 4px 16px rgba(46,42,90,.06)}
+.sc{padding:16px 18px;border-right:1px solid #F3F1FA;text-align:center}
+.sc:last-child{border-right:none;background:#FFEEE2}
 .sv{font-size:18px;font-weight:800;letter-spacing:-.4px;color:#18180F}
 .sl{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;margin-top:2px;letter-spacing:.05em}
 .ss{font-size:10px;color:#7C7A70;margin-top:1px}
 
 /* ══════ ALERTS ══════ */
-.alert{border-radius:4px;padding:9px 12px;font-size:11px;line-height:1.5;margin-bottom:10px;border-left:2px solid}
+.alert{border-radius:11px;padding:11px 14px;font-size:11px;line-height:1.5;margin-bottom:12px;border-left:3px solid}
 .al-rd{background:#FDEEEA;border-color:#CD3C14;color:#8B2A12}
 .al-am{background:#FFF8E1;border-color:#FFB400;color:#7A5A00}
 .al-gn{background:#E6F4EF;border-color:#0A6E31;color:#0A6E31}
@@ -249,7 +249,7 @@ tbody tr:last-child td{border-bottom:none}
 .ls{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 
 /* ══════ PROGRESS ══════ */
-.pw{background:#E3E1DA;border-radius:3px;height:4px;overflow:hidden;min-width:60px}
+.pw{background:#EDECF5;border-radius:3px;height:4px;overflow:hidden;min-width:60px}
 .pf{height:100%;border-radius:3px}
 
 /* ══════ HEATMAP ══════ */
@@ -764,6 +764,14 @@ tbody tr:last-child td{border-bottom:none}
   <div id="pg-extraction" class="page">
     <div class="alert al-bl">Utilisez les filtres ci-dessus pour affiner la sélection, puis exportez. Le tableau reflète la sélection active en temps réel.</div>
     <div class="card">
+      <div class="card-hd"><div><h2>Rapport de synthèse</h2><p>KPI et graphiques clés, prêts à partager</p></div>
+        <div class="card-hd-r">
+          <button class="btn btn-xl" id="btnExpPptx" onclick="exportPPTX()">⬇ Export PowerPoint</button>
+          <button class="btn btn-csv" id="btnExpPdf" onclick="exportPDF()">⬇ Export PDF</button>
+        </div>
+      </div>
+    </div>
+    <div class="card">
       <div class="card-hd">
         <div><h2>Extraction · données complètes</h2><p id="ext-count">— articles sélectionnés</p></div>
         <div class="card-hd-r">
@@ -800,6 +808,39 @@ const FB_CONFIG = {
 firebase.initializeApp(FB_CONFIG);
 const FB_DB = firebase.database();
 const FB_REF = FB_DB.ref('dashboard/v1');
+
+// ══════════════════════════════════════
+// STYLE GLOBAL DES GRAPHIQUES (s'applique à tous les charts, un seul endroit à ajuster)
+// ══════════════════════════════════════
+Chart.defaults.font.family = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.font.weight = 500;
+Chart.defaults.color = '#8A87A0';
+Chart.defaults.borderColor = '#EEECF7';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
+Chart.defaults.plugins.legend.labels.boxWidth = 7;
+Chart.defaults.plugins.legend.labels.boxHeight = 7;
+Chart.defaults.plugins.legend.labels.padding = 14;
+Chart.defaults.plugins.legend.labels.font = {family:"'Helvetica Neue', Helvetica, Arial, sans-serif", size:11, weight:600};
+Chart.defaults.plugins.tooltip.backgroundColor = '#18181F';
+Chart.defaults.plugins.tooltip.titleFont = {family:"'Helvetica Neue', Helvetica, Arial, sans-serif", size:12, weight:700};
+Chart.defaults.plugins.tooltip.bodyFont = {family:"'Helvetica Neue', Helvetica, Arial, sans-serif", size:11};
+Chart.defaults.plugins.tooltip.padding = 10;
+Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.displayColors = true;
+Chart.defaults.plugins.tooltip.boxPadding = 4;
+Chart.defaults.elements.bar.borderRadius = 6;
+Chart.defaults.elements.bar.borderSkipped = false;
+Chart.defaults.elements.line.tension = 0.35;
+Chart.defaults.elements.line.borderWidth = 2.5;
+Chart.defaults.elements.point.radius = 3;
+Chart.defaults.elements.point.hoverRadius = 5;
+Chart.defaults.elements.arc.borderWidth = 3;
+Chart.defaults.elements.arc.borderColor = '#FFFFFF';
+Chart.defaults.scale.grid.color = '#EEECF7';
+Chart.defaults.scale.ticks.color = '#8A87A0';
+Chart.defaults.scale.border = { display:false };
 
 function fbSave(payload) {
   // Sauvegarder les données dans Firebase après un upload Excel
@@ -1908,6 +1949,379 @@ function exportTblX(tblId, sheetName) {
 
 function dl(content, type, name) { const b=new Blob([content],{type}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download=name; a.click(); URL.revokeObjectURL(a.href); }
 function dt() { return new Date().toISOString().slice(0,10); }
+
+// ══════════════════════════════════════
+// EXPORT RAPPORT (PowerPoint / PDF)
+// ══════════════════════════════════════
+function captureChartImage(cfg, w, h, extra) {
+  const div = document.createElement('div');
+  div.style.cssText = `position:fixed;left:-99999px;top:0;width:${w}px;height:${h}px;background:#fff`;
+  document.body.appendChild(div);
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  div.appendChild(canvas);
+  cfg = JSON.parse(JSON.stringify(cfg, (k,v) => typeof v === 'function' ? undefined : v));
+  cfg.options = cfg.options || {};
+  cfg.options.responsive = false;
+  cfg.options.animation = false;
+  cfg.options.devicePixelRatio = 2;
+  cfg.options.layout = cfg.options.layout || {padding:{top:26,right:18}};
+  cfg.options.font = {family:'Calibri, sans-serif'};
+  // Ré-injecter les plugins/fonctions après le clone JSON (qui les avait supprimées)
+  if (extra) {
+    cfg.plugins = extra.plugins || [];
+    cfg.options.plugins = cfg.options.plugins || {};
+    if (extra.valueLabels) cfg.options.plugins.valueLabels = extra.valueLabels;
+    if (extra.hBarLabels) cfg.options.plugins.hBarLabels = extra.hBarLabels;
+    if (extra.targetLine) cfg.options.plugins.targetLine = extra.targetLine;
+  }
+  const chart = new Chart(canvas, cfg);
+  const img = chart.toBase64Image('image/png', 1);
+  chart.destroy();
+  document.body.removeChild(div);
+  return img;
+}
+
+// Plugin — étiquette de valeur au bout d'une barre horizontale
+const hBarLabelsPlugin = {
+  id: 'hBarLabels',
+  afterDatasetsDraw(chart, args, opts) {
+    const {ctx} = chart;
+    const fmt = (opts && opts.format) || (v => v);
+    ctx.save();
+    ctx.font = '600 11px Calibri, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillStyle = (opts && opts.color) || '#18180F';
+    chart.data.datasets.forEach((ds, di) => {
+      const meta = chart.getDatasetMeta(di);
+      meta.data.forEach((el, i) => {
+        const v = ds.data[i];
+        if (v === null || v === undefined) return;
+        ctx.fillText(fmt(v), el.x + 7, el.y);
+      });
+    });
+    ctx.restore();
+  }
+};
+
+function buildReportSummary() {
+  const data = FD;
+  const vd=data.reduce((s,d)=>s+d.vd,0), ve=data.reduce((s,d)=>s+d.ve,0), vr=data.reduce((s,d)=>s+d.vr,0);
+  const vc=data.reduce((s,d)=>s+Math.abs(d.vc),0), vf=data.reduce((s,d)=>s+d.vf,0);
+  const actifs=data.filter(d=>d.qc!==0).length, dormants=data.filter(d=>d.nm===0&&d.qf>0).length;
+  const rupturesA=data.filter(d=>d.c==='A'&&d.qf<=0).length;
+  const svcList = Object.entries(SVC_G).map(([k,v])=>({k,v:Math.abs(v.v)})).sort((a,b)=>b.v-a.v);
+  const preList = Object.entries(PRE_G).map(([k,v])=>({k,v:Math.abs(v.v)})).sort((a,b)=>b.v-a.v);
+  const top10 = [...data].filter(d=>d.vf>0).sort((a,b)=>b.vf-a.vf).slice(0,10);
+
+  // ── Insights calculés ──
+  const dispo = vd+ve+vr;
+  const tauxDispo = dispo>0 ? vc/dispo*100 : 0;
+
+  const svcTotal = svcList.reduce((s,x)=>s+x.v,0)||1;
+  const top2SvcShare = svcList.slice(0,2).reduce((s,x)=>s+x.v,0)/svcTotal*100;
+
+  const preTotal = preList.reduce((s,x)=>s+x.v,0)||1;
+  const top3PreShare = preList.slice(0,3).reduce((s,x)=>s+x.v,0)/preTotal*100;
+  const topPreShare = preList.length ? preList[0].v/preTotal*100 : 0;
+
+  const vfTotal = data.reduce((s,d)=>s+Math.max(d.vf,0),0)||1;
+  const oldStockValue = data.filter(d=>d.mx>12).reduce((s,d)=>s+Math.max(d.vf,0),0);
+  const oldStockShare = oldStockValue/vfTotal*100;
+  const oldStockCount = data.filter(d=>d.mx>12 && d.vf>0).length;
+
+  let rotationTrend = null;
+  if (ROTATION_MENSUEL_G && ROTATION_MENSUEL_G.length) {
+    const rates = ROTATION_MENSUEL_G.map(m=>(m.taux||0)*100);
+    const avg = rates.reduce((s,v)=>s+v,0)/rates.length;
+    let maxI=0, minI=0;
+    rates.forEach((v,i)=>{ if(v>rates[maxI])maxI=i; if(v<rates[minI])minI=i; });
+    rotationTrend = {avg, max:{mois:ROTATION_MENSUEL_G[maxI].mois,v:rates[maxI]}, min:{mois:ROTATION_MENSUEL_G[minI].mois,v:rates[minI]}, last:{mois:ROTATION_MENSUEL_G[rates.length-1].mois,v:rates[rates.length-1]}};
+  }
+
+  return {vd,ve,vr,vc,vf,dispo,tauxDispo,actifs,dormants,rupturesA,total:data.length,
+    svcList:svcList.slice(0,8),preList:preList.slice(0,8),top10,
+    top2SvcShare,top3PreShare,topPreShare,topPreName:preList[0]?preList[0].k:'',
+    oldStockShare,oldStockValue,oldStockCount,rotationTrend,
+    mois:MOIS_FR[currentPeriod.month], annee:currentPeriod.year};
+}
+
+function reportCharts(sum) {
+  const charts = {};
+  const R = RPT;
+  const rankColors = (n, accent) => Array.from({length:n}, (_,i) => i===0 ? accent : '#C7C4BB');
+
+  charts.waterfall = captureChartImage({type:'bar',data:{labels:['Initial','+ Entrées','+ Retours','− Sorties','= Final'],
+    datasets:[{data:[+(sum.vd/1e9).toFixed(2),+(sum.ve/1e9).toFixed(2),+(sum.vr/1e9).toFixed(2),-(+(sum.vc/1e9).toFixed(2)),+(sum.vf/1e9).toFixed(2)],
+      backgroundColor:['#'+R.BLUE,'#'+R.GREEN,'#'+R.GREEN,'#'+R.RED,'#'+R.ORANGE],borderRadius:3,barPercentage:0.55}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#'+R.MUTED_L,font:{size:12}}},y:{grid:{color:'#'+R.LINE_L},ticks:{color:'#'+R.MUTED_L}}}}},
+    900, 500, {plugins:[valueLabelsPlugin], valueLabels:{format:v=>v.toFixed(2)+' Md',color:'#'+R.INK,yOffset:v=>v<0?20:-12}});
+
+  if (sum.svcList.length) charts.services = captureChartImage({type:'bar',data:{labels:sum.svcList.map(x=>x.k),
+    datasets:[{data:sum.svcList.map(x=>+(x.v/1e6).toFixed(1)),backgroundColor:rankColors(sum.svcList.length,'#'+R.ORANGE),borderRadius:3,barPercentage:0.62}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{display:false,grid:{display:false}},y:{grid:{display:false},ticks:{color:'#'+R.INK,font:{size:12}}}}}},
+    900, 500, {plugins:[hBarLabelsPlugin], hBarLabels:{format:v=>v.toFixed(0)+' M',color:'#'+R.INK}});
+
+  if (sum.preList.length) charts.prestataires = captureChartImage({type:'bar',data:{labels:sum.preList.map(x=>x.k),
+    datasets:[{data:sum.preList.map(x=>+(x.v/1e6).toFixed(1)),backgroundColor:rankColors(sum.preList.length,'#'+R.BLUE),borderRadius:3,barPercentage:0.62}]},
+    options:{indexAxis:'y',plugins:{legend:{display:false}},scales:{x:{display:false,grid:{display:false}},y:{grid:{display:false},ticks:{color:'#'+R.INK,font:{size:12}}}}}},
+    900, 500, {plugins:[hBarLabelsPlugin], hBarLabels:{format:v=>v.toFixed(0)+' M',color:'#'+R.INK}});
+
+  if (AGE_MENSUEL_G && AGE_MENSUEL_G.length) charts.age = captureChartImage({type:'bar',
+    data:{labels:AGE_MENSUEL_G.map(m=>m.mois),datasets:[
+      {label:'0–3 mois',data:AGE_MENSUEL_G.map(m=>+(m.b03/1e6).toFixed(1)),backgroundColor:'#'+R.BLUE},
+      {label:'3–6 mois',data:AGE_MENSUEL_G.map(m=>+(m.b36/1e6).toFixed(1)),backgroundColor:'#'+R.GOLD},
+      {label:'6 mois–1 an',data:AGE_MENSUEL_G.map(m=>+(m.b6_1/1e6).toFixed(1)),backgroundColor:'#D3BE8E'},
+      {label:'1 an +',data:AGE_MENSUEL_G.map(m=>+(m.b1p/1e6).toFixed(1)),backgroundColor:'#'+R.GREEN},
+    ]}, options:{plugins:{legend:{position:'top',labels:{color:'#'+R.INK,font:{size:11},boxWidth:11,padding:14}}},
+      scales:{x:{stacked:true,grid:{display:false},ticks:{color:'#'+R.MUTED_L}},y:{stacked:true,grid:{color:'#'+R.LINE_L},ticks:{color:'#'+R.MUTED_L}}}}},
+    900, 520, {plugins:[valueLabelsPlugin], valueLabels:{format:v=>Math.round(v)+'M',color:'#'+R.INK,minValue:0.5,yOffset:0}});
+
+  if (ROTATION_MENSUEL_G && ROTATION_MENSUEL_G.length) charts.rotation = captureChartImage({type:'line',
+    data:{labels:ROTATION_MENSUEL_G.map(m=>m.mois),datasets:[{data:ROTATION_MENSUEL_G.map(m=>Math.round((m.taux||0)*100)),
+      borderColor:'#'+R.ORANGE,backgroundColor:'rgba(199,122,62,.14)',fill:true,tension:.35,borderWidth:2.5,pointBackgroundColor:'#'+R.ORANGE,pointBorderColor:'#fff',pointBorderWidth:1.5,pointRadius:4.5}]},
+    options:{plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{color:'#'+R.MUTED_L,font:{size:12}}},y:{min:0,grid:{color:'#'+R.LINE_L},ticks:{color:'#'+R.MUTED_L,callback:v=>v+'%'}}}}},
+    900, 500, {plugins:[valueLabelsPlugin,targetLinePlugin], valueLabels:{format:v=>v+'%',color:'#'+R.ORANGE,yOffset:-13},
+      targetLine:{value:10,label:'Objectif 10 %',color:'#'+R.RED}});
+
+  return charts;
+}
+
+// ── Palette "Executive Navy" partagée par le PPTX et le PDF ──
+const RPT = { INK:'1E2128', PAPER:'FEFDFB', MUTED_L:'7A776E', MUTED_D:'A6A69C', LINE_L:'E6E3DA', LINE_D:'32363F',
+  ORANGE:'C77A3E', GREEN:'5F7D5B', RED:'A85A4A', BLUE:'5D7C93', GOLD:'A88A4E' };
+
+async function exportPPTX() {
+  const btn = $('btnExpPptx'); const oldTxt = btn.textContent; btn.textContent = '⏳ Génération…'; btn.disabled = true;
+  try {
+    const sum = buildReportSummary();
+    const charts = reportCharts(sum);
+    const pres = new PptxGenJS();
+    pres.layout = 'LAYOUT_WIDE';
+    const R = RPT;
+    const kicker = (s,t,x,y,dark) => s.addText(t.toUpperCase(),{x,y,w:8,h:0.32,fontFace:'Calibri',fontSize:11,bold:true,color:R.ORANGE,charSpacing:2});
+    const hr = (s,x,y,w,color) => s.addShape(pres.ShapeType.line,{x,y,w,h:0,line:{color,width:0.75}});
+
+    // 1 — Titre
+    let s1 = pres.addSlide(); s1.background={color:R.INK};
+    kicker(s1,'Analyse des données de stock',0.9,2.55,true);
+    s1.addText('Dashboard Stock Technique', {x:0.87,y:2.95,w:11,h:1.1,fontFace:'Cambria',fontSize:42,bold:true,color:R.PAPER});
+    s1.addText(`${sum.mois} ${sum.annee}`, {x:0.9,y:3.85,w:10,h:0.5,fontFace:'Cambria',fontSize:18,italic:true,color:R.MUTED_D});
+    hr(s1,0.9,4.55,0.5,R.ORANGE);
+    s1.addText(`${sum.total} articles sélectionnés · généré le ${new Date().toLocaleDateString('fr-FR')}`, {x:0.9,y:4.75,w:9,h:0.4,fontFace:'Calibri',fontSize:11,color:R.MUTED_D});
+
+    // 2 — Chiffres clés + lecture
+    let s2 = pres.addSlide(); s2.background={color:R.PAPER};
+    kicker(s2,"Vue d'ensemble",0.7,0.55);
+    s2.addText('Chiffres clés', {x:0.68,y:0.92,w:10,h:0.6,fontFace:'Cambria',fontSize:28,bold:true,color:R.INK});
+    hr(s2,0.7,1.6,11.9,R.LINE_L);
+    const kpis=[[fN(sum.vf),'Valeur finale',R.BLUE],[fN(sum.vc),'Consommation',R.RED],[String(sum.actifs),'Articles actifs',R.GREEN],[String(sum.dormants),'Dormants',R.GOLD],[String(sum.rupturesA),'Ruptures A',R.RED],[String(sum.total),'Filtrés',R.ORANGE]];
+    const kw=(12.3)/6;
+    kpis.forEach((k,i)=>{const x=0.7+i*kw;
+      if(i>0) s2.addShape(pres.ShapeType.line,{x,y:1.9,w:0,h:1.0,line:{color:R.LINE_L,width:0.75}});
+      s2.addText(k[0],{x:x+0.15,y:1.85,w:kw-0.3,h:0.55,fontFace:'Cambria',fontSize:18,bold:true,color:R.INK});
+      s2.addShape(pres.ShapeType.rect,{x:x+0.15,y:2.42,w:0.3,h:0.04,fill:{color:k[2]},line:{type:'none'}});
+      s2.addText(k[1],{x:x+0.15,y:2.52,w:kw-0.3,h:0.4,fontFace:'Calibri',fontSize:9.5,color:R.MUTED_L}); });
+    hr(s2,0.7,3.15,11.9,R.LINE_L);
+    s2.addText('LECTURE', {x:0.7,y:3.35,w:3,h:0.3,fontFace:'Calibri',fontSize:10.5,bold:true,color:R.ORANGE,charSpacing:1.2});
+    const tauxTxt = `Le taux de consommation sur disponibilité s'établit à ${sum.tauxDispo.toFixed(1)} % ce mois-ci (disponibilité = stock initial + entrées).`;
+    const domTxt = sum.dormants>0 ? `${sum.dormants} article(s) sont sans mouvement malgré un stock disponible.` : `Aucun stock dormant détecté sur le périmètre sélectionné.`;
+    const ruptTxt = sum.rupturesA>0 ? `${sum.rupturesA} article(s) de classe A sont en rupture — priorité de traitement.` : `Aucune rupture sur les articles classe A.`;
+    s2.addText([{text:tauxTxt,options:{breakLine:true,color:R.INK}},{text:domTxt,options:{breakLine:true,color:R.INK}},{text:ruptTxt,options:{color:R.INK}}],
+      {x:0.7,y:3.68,w:11.9,h:1.3,fontFace:'Calibri',fontSize:12.5,valign:'top',paraSpaceAfter:5});
+
+    // 3 — Évolution
+    let s3 = pres.addSlide(); s3.background={color:R.PAPER};
+    kicker(s3,'Mouvement de stock',0.7,0.55);
+    s3.addText('Évolution du stock', {x:0.68,y:0.92,w:10,h:0.55,fontFace:'Cambria',fontSize:26,bold:true,color:R.INK});
+    s3.addImage({data:charts.waterfall, x:0.6, y:1.6, w:8.1, h:4.6});
+    const varPct = sum.vd>0 ? ((sum.vf-sum.vd)/sum.vd*100) : 0;
+    s3.addShape(pres.ShapeType.line,{x:8.95,y:1.6,w:0,h:4.6,line:{color:R.LINE_L,width:0.75}});
+    s3.addText('ANALYSE',{x:9.25,y:1.7,w:3.4,h:0.3,fontFace:'Calibri',fontSize:10.5,bold:true,color:R.ORANGE,charSpacing:1.2});
+    s3.addText(`${varPct>=0?'+':''}${varPct.toFixed(1)} %`,{x:9.2,y:2.0,w:3.4,h:0.85,fontFace:'Cambria',fontSize:34,bold:true,color:varPct>=0?R.GREEN:R.RED});
+    s3.addText('variation du stock entre le début et la fin de la période',{x:9.25,y:2.85,w:3.4,h:0.6,fontFace:'Calibri',fontSize:11,color:R.MUTED_L,valign:'top'});
+    s3.addText(`Entrées : ${fN(sum.ve)}\nRetours : ${fN(sum.vr)}\nSorties : ${fN(sum.vc)}`,{x:9.25,y:3.6,w:3.4,h:1.4,fontFace:'Calibri',fontSize:10.5,color:R.INK,valign:'top',lineSpacingMultiple:1.4});
+
+    // 4 — Services
+    if (charts.services) {
+      let s4 = pres.addSlide(); s4.background={color:R.PAPER};
+      kicker(s4,'Tendances de consommation',0.7,0.55);
+      s4.addText('Consommation par service', {x:0.68,y:0.92,w:10,h:0.55,fontFace:'Cambria',fontSize:26,bold:true,color:R.INK});
+      s4.addImage({data:charts.services, x:0.6, y:1.6, w:8.1, h:4.6});
+      s4.addShape(pres.ShapeType.line,{x:8.95,y:1.6,w:0,h:4.6,line:{color:R.LINE_L,width:0.75}});
+      s4.addText('CONCENTRATION',{x:9.25,y:1.7,w:3.4,h:0.3,fontFace:'Calibri',fontSize:10.5,bold:true,color:R.ORANGE,charSpacing:1.2});
+      s4.addText(`${sum.top2SvcShare.toFixed(0)} %`,{x:9.2,y:2.0,w:3.4,h:0.8,fontFace:'Cambria',fontSize:34,bold:true,color:R.ORANGE});
+      s4.addText(`de la consommation vient des 2 premiers services (${sum.svcList[0]?.k||''}, ${sum.svcList[1]?.k||''})`,{x:9.25,y:2.85,w:3.4,h:1.1,fontFace:'Calibri',fontSize:11,color:R.MUTED_L,valign:'top'});
+    }
+
+    // 5 — Prestataires
+    if (charts.prestataires) {
+      let s5 = pres.addSlide(); s5.background={color:R.INK};
+      kicker(s5,'Tendances de consommation',0.7,0.55,true);
+      s5.addText('Consommation par prestataire', {x:0.68,y:0.92,w:10,h:0.55,fontFace:'Cambria',fontSize:26,bold:true,color:R.PAPER});
+      s5.addImage({data:charts.prestataires, x:0.6, y:1.6, w:8.1, h:4.6});
+      s5.addShape(pres.ShapeType.line,{x:8.95,y:1.6,w:0,h:4.6,line:{color:R.LINE_D,width:0.75}});
+      s5.addText('CONCENTRATION FOURNISSEUR',{x:9.25,y:1.7,w:3.4,h:0.3,fontFace:'Calibri',fontSize:10.5,bold:true,color:R.MUTED_D,charSpacing:1.2});
+      s5.addText(`${sum.top3PreShare.toFixed(0)} %`,{x:9.2,y:2.0,w:3.4,h:0.8,fontFace:'Cambria',fontSize:34,bold:true,color:R.ORANGE});
+      s5.addText('de la consommation passe par les 3 premiers prestataires',{x:9.25,y:2.85,w:3.4,h:0.6,fontFace:'Calibri',fontSize:11,color:R.MUTED_D,valign:'top'});
+      if (sum.topPreShare>=40) s5.addText(`Point d'attention : ${sum.topPreName} concentre à lui seul ${sum.topPreShare.toFixed(0)} % — risque de dépendance fournisseur.`,{x:9.25,y:3.6,w:3.4,h:1.3,fontFace:'Calibri',fontSize:10.5,italic:true,color:R.MUTED_D,valign:'top'});
+    }
+
+    // 6 — Âge des stocks
+    if (charts.age) {
+      let s6 = pres.addSlide(); s6.background={color:R.PAPER};
+      kicker(s6,'Ancienneté du stock',0.7,0.55);
+      s6.addText("Âge des stocks — évolution mensuelle", {x:0.68,y:0.92,w:11,h:0.55,fontFace:'Cambria',fontSize:24,bold:true,color:R.INK});
+      s6.addImage({data:charts.age, x:0.6, y:1.6, w:8.1, h:4.6});
+      s6.addShape(pres.ShapeType.line,{x:8.95,y:1.6,w:0,h:4.6,line:{color:R.LINE_L,width:0.75}});
+      s6.addText("VALEUR IMMOBILISÉE",{x:9.25,y:1.7,w:3.4,h:0.3,fontFace:'Calibri',fontSize:10.5,bold:true,color:R.ORANGE,charSpacing:1.2});
+      s6.addText(`${sum.oldStockShare.toFixed(0)} %`,{x:9.2,y:2.0,w:3.4,h:0.8,fontFace:'Cambria',fontSize:34,bold:true,color:sum.oldStockShare>=50?R.RED:R.GOLD});
+      s6.addText(`de la valeur du stock (${sum.oldStockCount} articles) a plus de 12 mois d'ancienneté — signal de sur-stockage à examiner.`,{x:9.25,y:2.85,w:3.4,h:1.3,fontFace:'Calibri',fontSize:11,color:R.MUTED_L,valign:'top'});
+    }
+
+    // 7 — Rotation mensuelle
+    if (charts.rotation && sum.rotationTrend) {
+      let s7 = pres.addSlide(); s7.background={color:R.PAPER};
+      kicker(s7,'Mouvement de stock',0.7,0.55);
+      s7.addText('Taux de rotation mensuel', {x:0.68,y:0.92,w:10,h:0.55,fontFace:'Cambria',fontSize:26,bold:true,color:R.INK});
+      s7.addImage({data:charts.rotation, x:0.6, y:1.6, w:8.1, h:4.6});
+      s7.addShape(pres.ShapeType.line,{x:8.95,y:1.6,w:0,h:4.6,line:{color:R.LINE_L,width:0.75}});
+      s7.addText('MOYENNE',{x:9.25,y:1.7,w:3.4,h:0.3,fontFace:'Calibri',fontSize:10.5,bold:true,color:R.ORANGE,charSpacing:1.2});
+      s7.addText(`${sum.rotationTrend.avg.toFixed(1)} %`,{x:9.2,y:2.0,w:3.4,h:0.75,fontFace:'Cambria',fontSize:30,bold:true,color:R.INK});
+      s7.addText(`Pic : ${sum.rotationTrend.max.mois} (${sum.rotationTrend.max.v.toFixed(1)} %)\nCreux : ${sum.rotationTrend.min.mois} (${sum.rotationTrend.min.v.toFixed(1)} %)\nDernier mois : ${sum.rotationTrend.last.mois} (${sum.rotationTrend.last.v.toFixed(1)} %)`,
+        {x:9.25,y:2.85,w:3.4,h:1.4,fontFace:'Calibri',fontSize:11,color:R.MUTED_L,valign:'top',lineSpacingMultiple:1.4});
+    }
+
+    // 8 — Risques & recommandations
+    let s8 = pres.addSlide(); s8.background={color:R.INK};
+    kicker(s8,'Points de vigilance',0.7,0.55,true);
+    s8.addText('Risques & recommandations', {x:0.68,y:0.92,w:10.5,h:0.55,fontFace:'Cambria',fontSize:26,bold:true,color:R.PAPER});
+    const actions = [];
+    if (sum.rupturesA>0) actions.push(`Traiter en priorité les ${sum.rupturesA} rupture(s) classe A (impact direct sur les activités critiques).`);
+    if (sum.dormants>0) actions.push(`Auditer les ${sum.dormants} article(s) dormant(s) pour arbitrer entre reclassement, déstockage ou retrait.`);
+    if (sum.topPreShare>=40) actions.push(`Sécuriser un plan de contingence pour réduire la dépendance à ${sum.topPreName} (${sum.topPreShare.toFixed(0)} % de la conso.).`);
+    if (sum.oldStockShare>=50) actions.push(`Examiner les ${sum.oldStockCount} article(s) de plus de 12 mois (${sum.oldStockShare.toFixed(0)} % de la valeur du stock) pour limiter l'immobilisation de capital.`);
+    if (!actions.length) actions.push('Aucun signal de risque majeur détecté sur le périmètre sélectionné ce mois-ci.');
+    actions.forEach((a,i)=>{ s8.addText((i+1).toString().padStart(2,'0'),{x:0.7,y:1.75+i*0.75,w:0.55,h:0.5,fontFace:'Cambria',fontSize:14,italic:true,color:R.ORANGE});
+      s8.addText(a,{x:1.3,y:1.75+i*0.75,w:11,h:0.65,fontFace:'Calibri',fontSize:13,color:R.PAPER,valign:'top'}); });
+
+    // 9 — Top 10
+    let s9 = pres.addSlide(); s9.background={color:R.PAPER};
+    kicker(s9,'Concentration de la valeur',0.7,0.55);
+    s9.addText('Top 10 articles · valeur finale', {x:0.68,y:0.92,w:10,h:0.55,fontFace:'Cambria',fontSize:26,bold:true,color:R.INK});
+    const rows=[[{text:'Article',options:{bold:true,color:R.INK,fill:{color:'F5F4F0'}}},{text:'Description',options:{bold:true,color:R.INK,fill:{color:'F5F4F0'}}},{text:'Classe',options:{bold:true,color:R.INK,fill:{color:'F5F4F0'}}},{text:'Valeur',options:{bold:true,color:R.INK,fill:{color:'F5F4F0'}}}]];
+    sum.top10.forEach(d=>rows.push([d.a, d.d, d.c||'?', fN(d.vf)]));
+    s9.addTable(rows, {x:0.7,y:1.6,fontFace:'Calibri',fontSize:11,border:{type:'solid',color:R.LINE_L,pt:0.5},autoPage:false,colW:[1.8,7.5,1.2,1.8]});
+
+    await pres.writeFile({fileName:`Dashboard_Stock_${dt()}.pptx`});
+  } catch(err) {
+    console.error('Export PPTX error:', err);
+    alert("Erreur lors de la génération du PowerPoint. Vérifiez votre connexion internet (librairie chargée depuis un CDN).");
+  } finally {
+    btn.textContent = oldTxt; btn.disabled = false;
+  }
+}
+
+async function exportPDF() {
+  const btn = $('btnExpPdf'); const oldTxt = btn.textContent; btn.textContent = '⏳ Génération…'; btn.disabled = true;
+  try {
+    const sum = buildReportSummary();
+    const charts = reportCharts(sum);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({orientation:'landscape', unit:'mm', format:'a4'});
+    const W=297, H=210, M=12;
+    const DARK=[30,33,40], ORANGE=[199,154,110], MUTED=[122,119,110];
+
+    // Page 1 — titre + KPI + lecture
+    doc.setFillColor(...DARK); doc.rect(0,0,W,H,'F');
+    doc.setTextColor(...ORANGE); doc.setFont('helvetica','bold'); doc.setFontSize(12);
+    doc.text('DASHBOARD STOCK TECHNIQUE', M, 30);
+    doc.setTextColor(255,255,255); doc.setFontSize(26);
+    doc.text(`${sum.mois} ${sum.annee}`, M, 42);
+    doc.setTextColor(180,180,170); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    doc.text(`${sum.total} articles · généré le ${new Date().toLocaleDateString('fr-FR')}`, M, 49);
+
+    const kpis=[['Valeur finale',fN(sum.vf)],['Consommation',fN(sum.vc)],['Articles actifs',String(sum.actifs)],['Dormants',String(sum.dormants)],['Ruptures A',String(sum.rupturesA)],['Filtrés',String(sum.total)]];
+    const kpiW=(W-2*M)/6;
+    kpis.forEach((k,i)=>{const x=M+i*kpiW, y=65;
+      if(i>0){ doc.setDrawColor(50,54,63); doc.setLineWidth(0.2); doc.line(x,y,x,y+22); }
+      doc.setTextColor(255,255,255); doc.setFont('helvetica','bold'); doc.setFontSize(14);
+      doc.text(String(k[1]), x+4, y+9);
+      doc.setTextColor(...MUTED); doc.setFont('helvetica','normal'); doc.setFontSize(8);
+      doc.text(k[0], x+4, y+17);
+    });
+    let ly=100;
+    doc.setTextColor(199,154,110); doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.text('LECTURE', M, ly); ly+=6;
+    doc.setTextColor(230,230,225); doc.setFont('helvetica','normal'); doc.setFontSize(10);
+    [`Taux de consommation sur disponibilité : ${sum.tauxDispo.toFixed(1)} %`,
+     sum.dormants>0?`${sum.dormants} article(s) dormant(s) détecté(s).`:'Aucun stock dormant détecté.',
+     sum.rupturesA>0?`${sum.rupturesA} rupture(s) classe A à traiter en priorité.`:'Aucune rupture classe A.'
+    ].forEach(t=>{ doc.text(t, M, ly); ly+=6; });
+
+    const addChartPage = (title, img, insight) => {
+      doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,W,H,'F');
+      doc.setTextColor(...DARK); doc.setFont('helvetica','bold'); doc.setFontSize(16);
+      doc.text(title, M, 15);
+      const imgW = insight ? 190 : W-2*M;
+      doc.addImage(img, 'PNG', M, 22, imgW, H-32);
+      if (insight) {
+        const tx = M+imgW+8;
+        doc.setDrawColor(227,226,220); doc.line(tx-4,22,tx-4,H-10);
+        doc.setTextColor(199,154,110); doc.setFont('helvetica','bold'); doc.setFontSize(9);
+        doc.text(insight.label, tx, 30);
+        doc.setTextColor(...DARK); doc.setFont('helvetica','bold'); doc.setFontSize(20);
+        doc.text(insight.big, tx, 42);
+        doc.setTextColor(...MUTED); doc.setFont('helvetica','normal'); doc.setFontSize(9);
+        doc.text(doc.splitTextToSize(insight.text, W-tx-M), tx, 52);
+      }
+    };
+    addChartPage('Évolution du stock', charts.waterfall, {label:'VARIATION', big:`${sum.vd>0?(((sum.vf-sum.vd)/sum.vd*100)>=0?'+':''):''}${sum.vd>0?((sum.vf-sum.vd)/sum.vd*100).toFixed(1):'0'} %`, text:'Variation du stock entre le début et la fin de la période.'});
+    if (charts.services) addChartPage('Consommation par service', charts.services, {label:'CONCENTRATION', big:`${sum.top2SvcShare.toFixed(0)} %`, text:`de la consommation vient des 2 premiers services (${sum.svcList[0]?.k||''}, ${sum.svcList[1]?.k||''}).`});
+    if (charts.prestataires) addChartPage('Consommation par prestataire', charts.prestataires, {label:'CONCENTRATION FOURNISSEUR', big:`${sum.top3PreShare.toFixed(0)} %`, text:`de la consommation passe par les 3 premiers prestataires.${sum.topPreShare>=40?` Attention : ${sum.topPreName} concentre ${sum.topPreShare.toFixed(0)} % à lui seul.`:''}`});
+    if (charts.age) addChartPage("Âge des stocks — évolution mensuelle", charts.age, {label:'VALEUR IMMOBILISÉE', big:`${sum.oldStockShare.toFixed(0)} %`, text:`de la valeur du stock (${sum.oldStockCount} articles) a plus de 12 mois d'ancienneté.`});
+    if (charts.rotation && sum.rotationTrend) addChartPage('Taux de rotation mensuel', charts.rotation, {label:'MOYENNE', big:`${sum.rotationTrend.avg.toFixed(1)} %`, text:`Pic : ${sum.rotationTrend.max.mois} (${sum.rotationTrend.max.v.toFixed(1)}%). Creux : ${sum.rotationTrend.min.mois} (${sum.rotationTrend.min.v.toFixed(1)}%).`});
+
+    // Page — risques & recommandations
+    doc.addPage(); doc.setFillColor(...DARK); doc.rect(0,0,W,H,'F');
+    doc.setTextColor(...ORANGE); doc.setFont('helvetica','bold'); doc.setFontSize(16);
+    doc.text('Risques & recommandations', M, 20);
+    const actions = [];
+    if (sum.rupturesA>0) actions.push(`Traiter en priorité les ${sum.rupturesA} rupture(s) classe A (impact direct sur les activités critiques).`);
+    if (sum.dormants>0) actions.push(`Auditer les ${sum.dormants} article(s) dormant(s) pour arbitrer entre reclassement, déstockage ou retrait.`);
+    if (sum.topPreShare>=40) actions.push(`Sécuriser un plan de contingence pour réduire la dépendance à ${sum.topPreName} (${sum.topPreShare.toFixed(0)} % de la conso.).`);
+    if (sum.oldStockShare>=50) actions.push(`Examiner les ${sum.oldStockCount} article(s) de plus de 12 mois (${sum.oldStockShare.toFixed(0)} % de la valeur du stock).`);
+    if (!actions.length) actions.push('Aucun signal de risque majeur détecté sur le périmètre sélectionné ce mois-ci.');
+    let ay=36; doc.setFontSize(11); doc.setFont('helvetica','normal'); doc.setTextColor(255,255,255);
+    actions.forEach((a,i)=>{ doc.setTextColor(199,154,110); doc.text(String(i+1).padStart(2,'0'), M, ay);
+      doc.setTextColor(230,230,225); doc.text(doc.splitTextToSize(a, W-2*M-12), M+12, ay); ay+=14; });
+
+    // Dernière page — Top 10
+    doc.addPage(); doc.setFillColor(255,255,255); doc.rect(0,0,W,H,'F');
+    doc.setTextColor(...DARK); doc.setFont('helvetica','bold'); doc.setFontSize(16);
+    doc.text('Top 10 articles · valeur finale', M, 15);
+    let y=28;
+    doc.setFontSize(9);
+    doc.setFont('helvetica','bold');
+    doc.text('Article',M,y); doc.text('Description',M+30,y); doc.text('Classe',M+150,y); doc.text('Valeur',M+175,y);
+    y+=6; doc.setFont('helvetica','normal');
+    sum.top10.forEach(d=>{
+      doc.text(String(d.a),M,y);
+      doc.text(String(d.d).slice(0,55),M+30,y);
+      doc.text(String(d.c||'?'),M+150,y);
+      doc.text(fN(d.vf),M+175,y);
+      y+=7;
+    });
+
+    doc.save(`Dashboard_Stock_${dt()}.pdf`);
+  } catch(err) {
+    console.error('Export PDF error:', err);
+    alert("Erreur lors de la génération du PDF. Vérifiez votre connexion internet (librairie chargée depuis un CDN).");
+  } finally {
+    btn.textContent = oldTxt; btn.disabled = false;
+  }
+}
+
 
 // ══════════════════════════════════════
 // INIT
