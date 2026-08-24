@@ -14,13 +14,13 @@
 /* ══════ RESET ══════ */
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow-x:hidden;max-width:100%}
-body{font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;font-size:13px;background:#F1F0F9;color:#18180F;-webkit-font-smoothing:antialiased;overflow:hidden;max-width:100vw}
+body{font-family:'Aptos Display','Aptos',Calibri,'Segoe UI',system-ui,-apple-system,sans-serif;font-size:13px;background:#F5F5F2;color:#18180F;-webkit-font-smoothing:antialiased;overflow:hidden;max-width:100vw}
 
 /* ══════ LAYOUT ══════ */
 .app{display:grid;grid-template-rows:48px 1fr;height:100vh;height:100dvh;max-width:100vw;overflow-x:hidden}
-.topnav{background:#FFFFFF;box-shadow:0 1px 6px rgba(30,33,44,.05);display:flex;align-items:center;gap:0;padding:0;z-index:500;position:relative}
+.topnav{background:#FFFFFF;border-bottom:1px solid #E3E1DA;display:flex;align-items:center;gap:0;padding:0;z-index:500;position:relative}
 .body{display:grid;grid-template-columns:minmax(220px,220px) minmax(0,1fr);overflow:hidden;height:100%;position:relative;z-index:1;max-width:100vw}
-.sidebar{background:#FFFFFF;box-shadow:1px 0 6px rgba(30,33,44,.04);overflow-y:auto;display:flex;flex-direction:column}
+.sidebar{background:#FFFFFF;border-right:1px solid #E3E1DA;overflow-y:auto;display:flex;flex-direction:column}
 .content{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding:16px;background:#F5F5F2;min-width:0}
 
 /* ══════ MOBILE ══════ */
@@ -141,16 +141,16 @@ html.force-mobile .tn-title {font-size:12px}
 
 /* ══════ SIDEBAR ══════ */
 .sb-section{padding:14px 14px 5px;font-size:9px;font-weight:700;color:#9B9890;letter-spacing:.12em;text-transform:uppercase}
-.sb-item{display:flex;align-items:center;gap:9px;padding:8px 12px;margin:1px 8px;border-radius:10px;color:#6B6960;font-size:12px;cursor:pointer;border-left:none;transition:.15s;user-select:none}
-.sb-item:hover{background:#F4F4FB;color:#18180F}
-.sb-item.on{color:#CC4D00;background:#FFEEE2;font-weight:600}
+.sb-item{display:flex;align-items:center;gap:8px;padding:7px 14px;color:#6B6960;font-size:12px;cursor:pointer;border-left:2px solid transparent;transition:.1s;user-select:none}
+.sb-item:hover{background:#FAFAF7;color:#18180F}
+.sb-item.on{color:#CC4D00;border-left-color:#FF7900;background:#FFF3EC;font-weight:600}
 .sb-item .si{font-size:13px;width:16px;text-align:center;flex-shrink:0}
 .sb-item .sc{margin-left:auto;background:#E3E1DA;color:#8A877D;font-size:9px;font-weight:700;padding:1px 5px;border-radius:10px;min-width:20px;text-align:center}
 .sb-item.on .sc{background:#FFE0CC;color:#CC4D00}
 .sb-foot{margin-top:auto;padding:12px 14px;border-top:1px solid #E3E1DA;color:#9B9890;font-size:10px;line-height:1.7}
 
 /* ══════ UPLOAD BAR ══════ */
-.upload-bar{background:#FFFFFF;border:none;box-shadow:0 4px 16px rgba(46,42,90,.06);border-radius:20px;padding:12px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.upload-bar{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
 .upload-btn{background:#FF7900;color:#fff;border:none;border-radius:4px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;display:flex;align-items:center;gap:5px}
 .upload-btn:hover{background:#F16E00}
 .upload-info{color:#6B6960;font-size:11px;flex:1}
@@ -162,34 +162,36 @@ html.force-mobile .tn-title {font-size:12px}
 .filter-strip{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;padding:10px 14px;margin-bottom:12px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .fg{display:flex;flex-direction:column;gap:3px}
 .fg label{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.08em}
-.fg select,.fg input{background:#F7F6FC;border:none;box-shadow:none;border-radius:11px;padding:6px 10px;font-size:11px;color:#3A3930;min-width:120px;cursor:pointer;appearance:none}
+.fg select,.fg input{background:#F5F5F2;border:1px solid #E3E1DA;border-radius:4px;padding:5px 8px;font-size:11px;color:#3A3930;min-width:120px;cursor:pointer;appearance:none}
 .fg select:focus,.fg input:focus{outline:none;border-color:#FF7900}
-.fg select option{background:#FFFFFF}
+.fg select option{background:#F5F5F2}
 .f-sep{width:1px;height:28px;background:#E3E1DA;margin:0 4px}
 .f-count{font-size:11px;color:#6B6960;white-space:nowrap}
 .f-count strong{color:#CC4D00}
 .fbtns{display:flex;gap:6px;margin-left:auto;flex-wrap:wrap}
-.btn{display:inline-flex;align-items:center;gap:5px;padding:6px 14px;border-radius:11px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid transparent;transition:.15s;white-space:nowrap}
-.btn-ghost{background:#F4F4F8;border-color:transparent;color:#6B6960}
-.btn-ghost:hover{background:#EBEBF2;color:#18180F}
-.btn-csv{background:#ECFDF5;border-color:transparent;color:#0A6E31}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid;transition:.1s;white-space:nowrap}
+.btn-ghost{background:transparent;border-color:#E3E1DA;color:#6B6960}
+.btn-ghost:hover{border-color:#9B9890;color:#18180F}
+.btn-csv{background:#ECFDF5;border-color:#A7E8C8;color:#0A6E31}
 .btn-csv:hover{background:#D7F5E5}
-.btn-xl{background:#EAF6FC;border-color:transparent;color:#085EBD}
+.btn-xl{background:#EAF6FC;border-color:#A8DCEF;color:#085EBD}
 .btn-xl:hover{background:#D5EDF8}
 
 /* ══════ KPI ROW ══════ */
-.kpi-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:10px;margin-bottom:14px}
-.kpi{background:#F7F6FC;border:none;border-radius:18px;padding:16px 18px;position:relative;overflow:hidden}
-.kpi-l{font-size:9.5px;font-weight:700;color:#8A87A0;text-transform:uppercase;letter-spacing:.07em;margin-bottom:7px}
-.kpi-v{font-size:24px;font-weight:800;color:#18181F;letter-spacing:-.6px;line-height:1}
-.kpi-v.or{color:#CC4D00}.kpi-v.rd{color:#C24A3A}.kpi-v.gn{color:#2E7D5B}.kpi-v.am{color:#B8860B}.kpi-v.bl{color:#3E6FA6}
-.kpi-s{font-size:10px;color:#8A87A0;margin-top:4px}
+.kpi-row{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-bottom:12px}
+.kpi{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;padding:12px 14px;position:relative;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,15,.04)}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+.kpi.or::after{background:#FF7900}.kpi.rd::after{background:#CD3C14}.kpi.gn::after{background:#50BE87}.kpi.am::after{background:#FFB400}.kpi.bl::after{background:#4BB4E6}.kpi.gy::after{background:#6b7280}
+.kpi-l{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px}
+.kpi-v{font-size:22px;font-weight:800;color:#18180F;letter-spacing:-.5px;line-height:1}
+.kpi-v.or{color:#CC4D00}.kpi-v.rd{color:#CD3C14}.kpi-v.gn{color:#0A6E31}.kpi-v.am{color:#B8860B}.kpi-v.bl{color:#085EBD}
+.kpi-s{font-size:10px;color:#7C7A70;margin-top:3px}
 
 /* ══════ CARDS ══════ */
-.card{background:#FFFFFF;border:none;border-radius:20px;margin-bottom:14px;overflow:hidden;box-shadow:0 4px 16px rgba(46,42,90,.06);min-width:0}
-.card-hd{display:flex;align-items:center;justify-content:space-between;padding:16px 18px 12px;border-bottom:none}
-.card-hd h2{font-size:13px;font-weight:700;color:#18181F;letter-spacing:-.1px}
-.card-hd p{font-size:10px;color:#8A87A0;margin-top:2px}
+.card{background:#FFFFFF;border:1px solid #E3E1DA;border-radius:6px;margin-bottom:10px;overflow:hidden;box-shadow:0 1px 2px rgba(24,24,15,.04);min-width:0}
+.card-hd{display:flex;align-items:center;justify-content:space-between;padding:10px 14px 9px;border-bottom:1px solid #E3E1DA}
+.card-hd h2{font-size:12px;font-weight:600;color:#18180F;letter-spacing:-.1px}
+.card-hd p{font-size:10px;color:#7C7A70;margin-top:1px}
 .card-hd-r{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
 .card-bd{padding:12px 14px;min-width:0}
 .card-bd.p0{padding:0}
@@ -207,34 +209,34 @@ html.force-mobile .tn-title {font-size:12px}
 .tscroll{overflow-x:auto;max-height:440px;overflow-y:auto}
 .tscroll::-webkit-scrollbar{width:5px;height:5px}
 .tscroll::-webkit-scrollbar-track{background:#F5F5F2}
-.tscroll::-webkit-scrollbar-thumb{background:#DCDBE8;border-radius:3px}
+.tscroll::-webkit-scrollbar-thumb{background:#E3E1DA;border-radius:3px}
 table{width:100%;border-collapse:collapse;font-size:11px}
-thead th{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.06em;padding:9px 12px;border-bottom:1px solid #F0EFF5;text-align:left;background:#FAFAFC;white-space:nowrap;position:sticky;top:0;z-index:2}
-tbody td{padding:7px 12px;border-bottom:1px solid #F5F4F9;vertical-align:middle;color:#3A3930}
-tbody tr:hover td{background:#F8F8FC}
+thead th{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;letter-spacing:.06em;padding:8px 10px;border-bottom:2px solid #E3E1DA;text-align:left;background:#FAFAF7;white-space:nowrap;position:sticky;top:0;z-index:2}
+tbody td{padding:6px 10px;border-bottom:1px solid #EDEBE5;vertical-align:middle;color:#3A3930}
+tbody tr:hover td{background:#FAFAF7}
 tbody tr:last-child td{border-bottom:none}
 .empty-td{text-align:center;padding:24px;color:#9B9890;font-style:italic}
 
 /* ══════ BADGES ══════ */
-.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:3px 8px;border-radius:20px;white-space:nowrap;letter-spacing:.02em}
-.bA{background:#E6F4EF;color:#0A6E31}
-.bB{background:#EAF6FC;color:#085EBD}
-.bC{background:#F1F0F5;color:#7C7A70}
-.b-rd{background:#FDEEEA;color:#CD3C14}
-.b-am{background:#FFF8E1;color:#B8860B}
-.b-gn{background:#E6F4EF;color:#0A6E31}
-.b-or{background:#FFF3EC;color:#CC4D00}
+.badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;letter-spacing:.02em}
+.bA{background:#E6F4EF;color:#0A6E31;border:1px solid #B8EBD6}
+.bB{background:#EAF6FC;color:#085EBD;border:1px solid #B5E8F7}
+.bC{background:#F1F0EC;color:#7C7A70;border:1px solid #E3E1DA}
+.b-rd{background:#FDEEEA;color:#CD3C14;border:1px solid #F5C6B8}
+.b-am{background:#FFF8E1;color:#B8860B;border:1px solid #FFE9A8}
+.b-gn{background:#E6F4EF;color:#0A6E31;border:1px solid #B8EBD6}
+.b-or{background:#FFF3EC;color:#CC4D00;border:1px solid #FFD2B3}
 
 /* ══════ STAT ROW ══════ */
-.stat-row{display:grid;grid-template-columns:repeat(5,1fr);border:none;border-radius:20px;overflow:hidden;margin-bottom:14px;background:#FFFFFF;box-shadow:0 4px 16px rgba(46,42,90,.06)}
-.sc{padding:16px 18px;border-right:1px solid #F3F1FA;text-align:center}
-.sc:last-child{border-right:none;background:#FFEEE2}
+.stat-row{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid #E3E1DA;border-radius:6px;overflow:hidden;margin-bottom:10px;background:#FFFFFF;box-shadow:0 1px 2px rgba(24,24,15,.04)}
+.sc{padding:12px 14px;border-right:1px solid #E3E1DA;text-align:center}
+.sc:last-child{border-right:none;background:#FFF3EC}
 .sv{font-size:18px;font-weight:800;letter-spacing:-.4px;color:#18180F}
 .sl{font-size:9px;font-weight:700;color:#7C7A70;text-transform:uppercase;margin-top:2px;letter-spacing:.05em}
 .ss{font-size:10px;color:#7C7A70;margin-top:1px}
 
 /* ══════ ALERTS ══════ */
-.alert{border-radius:11px;padding:11px 14px;font-size:11px;line-height:1.5;margin-bottom:12px;border-left:3px solid}
+.alert{border-radius:4px;padding:9px 12px;font-size:11px;line-height:1.5;margin-bottom:10px;border-left:2px solid}
 .al-rd{background:#FDEEEA;border-color:#CD3C14;color:#8B2A12}
 .al-am{background:#FFF8E1;border-color:#FFB400;color:#7A5A00}
 .al-gn{background:#E6F4EF;border-color:#0A6E31;color:#0A6E31}
@@ -249,7 +251,7 @@ tbody tr:last-child td{border-bottom:none}
 .ls{width:8px;height:8px;border-radius:2px;flex-shrink:0}
 
 /* ══════ PROGRESS ══════ */
-.pw{background:#EDECF5;border-radius:3px;height:4px;overflow:hidden;min-width:60px}
+.pw{background:#E3E1DA;border-radius:3px;height:4px;overflow:hidden;min-width:60px}
 .pf{height:100%;border-radius:3px}
 
 /* ══════ HEATMAP ══════ */
@@ -812,25 +814,25 @@ const FB_REF = FB_DB.ref('dashboard/v1');
 // ══════════════════════════════════════
 // STYLE GLOBAL DES GRAPHIQUES (s'applique à tous les charts, un seul endroit à ajuster)
 // ══════════════════════════════════════
-Chart.defaults.font.family = "'Helvetica Neue', Helvetica, Arial, sans-serif";
+Chart.defaults.font.family = "'Aptos Display', 'Aptos', Calibri, sans-serif";
 Chart.defaults.font.size = 11;
 Chart.defaults.font.weight = 500;
-Chart.defaults.color = '#8A87A0';
-Chart.defaults.borderColor = '#EEECF7';
+Chart.defaults.color = '#7C7A70';
+Chart.defaults.borderColor = '#E3E1DA';
 Chart.defaults.plugins.legend.labels.usePointStyle = true;
 Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
 Chart.defaults.plugins.legend.labels.boxWidth = 7;
 Chart.defaults.plugins.legend.labels.boxHeight = 7;
 Chart.defaults.plugins.legend.labels.padding = 14;
-Chart.defaults.plugins.legend.labels.font = {family:"'Helvetica Neue', Helvetica, Arial, sans-serif", size:11, weight:600};
-Chart.defaults.plugins.tooltip.backgroundColor = '#18181F';
-Chart.defaults.plugins.tooltip.titleFont = {family:"'Helvetica Neue', Helvetica, Arial, sans-serif", size:12, weight:700};
-Chart.defaults.plugins.tooltip.bodyFont = {family:"'Helvetica Neue', Helvetica, Arial, sans-serif", size:11};
+Chart.defaults.plugins.legend.labels.font = {family:"'Aptos Display', 'Aptos', Calibri, sans-serif", size:11, weight:600};
+Chart.defaults.plugins.tooltip.backgroundColor = '#18180F';
+Chart.defaults.plugins.tooltip.titleFont = {family:"'Aptos Display', 'Aptos', Calibri, sans-serif", size:12, weight:700};
+Chart.defaults.plugins.tooltip.bodyFont = {family:"'Aptos Display', 'Aptos', Calibri, sans-serif", size:11};
 Chart.defaults.plugins.tooltip.padding = 10;
-Chart.defaults.plugins.tooltip.cornerRadius = 8;
+Chart.defaults.plugins.tooltip.cornerRadius = 6;
 Chart.defaults.plugins.tooltip.displayColors = true;
 Chart.defaults.plugins.tooltip.boxPadding = 4;
-Chart.defaults.elements.bar.borderRadius = 6;
+Chart.defaults.elements.bar.borderRadius = 4;
 Chart.defaults.elements.bar.borderSkipped = false;
 Chart.defaults.elements.line.tension = 0.35;
 Chart.defaults.elements.line.borderWidth = 2.5;
@@ -838,8 +840,8 @@ Chart.defaults.elements.point.radius = 3;
 Chart.defaults.elements.point.hoverRadius = 5;
 Chart.defaults.elements.arc.borderWidth = 3;
 Chart.defaults.elements.arc.borderColor = '#FFFFFF';
-Chart.defaults.scale.grid.color = '#EEECF7';
-Chart.defaults.scale.ticks.color = '#8A87A0';
+Chart.defaults.scale.grid.color = '#E3E1DA';
+Chart.defaults.scale.ticks.color = '#7C7A70';
 Chart.defaults.scale.border = { display:false };
 
 function fbSave(payload) {
@@ -1479,7 +1481,11 @@ function buildPrestataires(data) {
 // ══════════════════════════════════════
 const MOIS_COURT = {'01':'Jan','02':'Fév','03':'Mar','04':'Avr','05':'Mai','06':'Juin','07':'Juil','08':'Août','09':'Sep','10':'Oct','11':'Nov','12':'Déc'};
 function buildMensuel(data) {
-  const months = (CONSO_MENSUELLE && CONSO_MENSUELLE.months) || [];
+  // Découvre dynamiquement les mois disponibles depuis l'historique réel (ART_MONTH),
+  // au lieu de se limiter à la liste figée du chargement initial
+  const monthSet = new Set();
+  Object.values(ART_MONTH).forEach(am => Object.keys(am).forEach(m => monthSet.add(m)));
+  const months = Array.from(monthSet).sort();
   if (!months.length) {
     $('mensuelStats').innerHTML = '<div class="sc"><div class="sv">—</div><div class="sl">Aucune donnée mensuelle disponible</div></div>';
     return;
@@ -1757,17 +1763,30 @@ function parseWB(wb, fname) {
     const ageMap={};
     const ageSheetName = wb.SheetNames.find(n => /^age\s/i.test(n.trim()) && n.trim()!=='Age des stocks Mensuel');
     const wsAG = ageSheetName ? wb.Sheets[ageSheetName] : null;
-    if(wsAG) XLSX.utils.sheet_to_json(wsAG,{header:1,defval:null}).slice(1).forEach(r=>{
-      const a=sS(r[1]); if(!a)return;
-      const m1=sN(r[3]),m2=sN(r[4]),m3=sN(r[5]);
-      ageMap[a]={cle:sS(r[0]),m1,m2,m3,mx:Math.max(m1,m2,m3)};
-    });
+    if(wsAG) {
+      const agRows = XLSX.utils.sheet_to_json(wsAG,{header:1,defval:null});
+      const agHead = (agRows[0]||[]).map(h => sS(h).toLowerCase());
+      // Colonne code article : contient "code" (ex: "Code Article", "Code Art.")
+      let iCode = agHead.findIndex(h => h.includes('code'));
+      if (iCode < 0) iCode = agHead.findIndex(h => h.includes('article') && !h.includes('desc'));
+      // Colonnes d'âge (numériques) : parmi celles contenant "age", ne garder que les 3 premières dont les valeurs sont numériques
+      // (exclut la colonne texte combinée type "0-35-30")
+      const ageColIdx = agHead.map((h,i)=>({h,i})).filter(x=>x.h.includes('age')).map(x=>x.i);
+      const sample = agRows[1]||[];
+      const numericAgeIdx = ageColIdx.filter(i => sample[i]===null || sample[i]===undefined || typeof sample[i]==='number').slice(0,3);
+      const [i1,i2,i3] = numericAgeIdx.length===3 ? numericAgeIdx : [3,4,5];
+      agRows.slice(1).forEach(r=>{
+        const a=sS(r[iCode>=0?iCode:1]); if(!a)return;
+        const m1=sN(r[i1]),m2=sN(r[i2]),m3=sN(r[i3]);
+        ageMap[a]={m1,m2,m3,mx:Math.max(m1,m2,m3)};
+      });
+    }
 
     const cA={}, sA={}, sAgg={}, cMag={}, pA={}, pAgg={}, psAgg={};
     const wsSO=wb.Sheets['Sortie'];
     const sortieRows = wsSO ? XLSX.utils.sheet_to_json(wsSO,{header:1,defval:null}).slice(1) : [];
     sortieRows.forEach(r=>{
-      const a=sS(r[2]),q=sN(r[6]),v=sN(r[8]),svc=sS(r[13]),pre=sS(r[14]),mag=sS(r[4]);
+      const a=sS(r[3]),q=sN(r[7]),v=sN(r[9]),svc=sS(r[14]),pre=sS(r[15]),mag=sS(r[5]);
       if(!a)return;
       if(!cA[a])cA[a]={q:0,v:0,n:0};
       cA[a].q+=q; cA[a].v+=v; cA[a].n++;
@@ -1804,10 +1823,10 @@ function parseWB(wb, fname) {
     const rA={}, rMag={};
     const wsRE=wb.Sheets['Retour'];
     if(wsRE) XLSX.utils.sheet_to_json(wsRE,{header:1,defval:null}).slice(1).forEach(r=>{
-      const a=sS(r[2]),mag=sS(r[4]); if(!a)return;
+      const a=sS(r[3]),mag=sS(r[5]); if(!a)return;
       if(!rA[a])rA[a]={q:0,v:0,n:0};
-      rA[a].q+=sN(r[6]); rA[a].v+=sN(r[8]); rA[a].n++;
-      if(mag){if(!rMag[mag])rMag[mag]={q:0,v:0,n:0};rMag[mag].q+=sN(r[6]);rMag[mag].v+=sN(r[8]);rMag[mag].n++;}
+      rA[a].q+=sN(r[7]); rA[a].v+=sN(r[9]); rA[a].n++;
+      if(mag){if(!rMag[mag])rMag[mag]={q:0,v:0,n:0};rMag[mag].q+=sN(r[7]);rMag[mag].v+=sN(r[9]);rMag[mag].n++;}
     });
 
     // Âge des stocks — historique mensuel (onglet "Age des stocks Mensuel")
@@ -1852,7 +1871,7 @@ function parseWB(wb, fname) {
     const seen=new Set();
     dashRows.forEach(r=>{
       const a=sS(r[3]); if(!a||seen.has(a))return; seen.add(a);
-      const ag=ageMap[a]||{cle:'',m1:0,m2:0,m3:0,mx:0};
+      const ag=ageMap[a]||{m1:0,m2:0,m3:0,mx:0};
       const qd=sN(r[5]),vd=sN(r[6]),qf=sN(r[13]),vf=sN(r[14]);
       const qc=cA[a]?.q||0,vc=cA[a]?.v||0,ns=cA[a]?.n||0;
       const qe=eA[a]?.q||0,ve=eA[a]?.v||0,ne=eA[a]?.n||0;
@@ -1862,7 +1881,7 @@ function parseWB(wb, fname) {
       const svcs=sA[a]||{};
       const pres=pA[a]||{};
       const msvc=Object.keys(svcs).length?Object.keys(svcs).reduce((a2,b)=>svcs[a2]>svcs[b]?a2:b):'';
-      newD.push({a,d:sS(r[4]).slice(0,45),c:clsMap[a]||'',k:ag.cle,
+      newD.push({a,d:sS(r[4]).slice(0,45),c:clsMap[a]||'',k:sS(r[0]),
         m1:ag.m1,m2:ag.m2,m3:ag.m3,mx:ag.mx,
         qd:Math.round(qd),vd:Math.round(vd),qe:Math.round(qe),ve:Math.round(ve),
         qr:Math.round(qr),vr:Math.round(vr),qc:Math.round(qc),vc:Math.round(vc),
@@ -1881,6 +1900,25 @@ function parseWB(wb, fname) {
 
     D = newD; SVC_G = newSVC; PRE_G = newPRE; PSA_G = newPSA; RET_G = newRET; ART_SVC_G = newAS; FD = D;
     AGE_MENSUEL_G = newAgeMensuel; ROTATION_MENSUEL_G = newRotationMensuel;
+
+    // Reconstruire l'historique mensuel par article (ART_MONTH) depuis la vraie colonne "Période" de l'onglet Sortie
+    // (remplace entièrement l'historique à chaque import, pour rester toujours exact)
+    const newArtMonth = {};
+    sortieRows.forEach(r=>{
+      const a=sS(r[3]); if(!a)return;
+      const per=r[1];
+      let y, mo;
+      if (per instanceof Date) { y=per.getFullYear(); mo=per.getMonth(); }
+      else if (typeof per === 'number') { const dc=XLSX.SSF.parse_date_code(per); y=dc.y; mo=dc.m-1; }
+      else return;
+      const key=y+'-'+String(mo+1).padStart(2,'0');
+      if(!newArtMonth[a]) newArtMonth[a]={};
+      if(!newArtMonth[a][key]) newArtMonth[a][key]=[0,0];
+      newArtMonth[a][key][0]+=sN(r[7]);
+      newArtMonth[a][key][1]+=sN(r[9]);
+    });
+    Object.keys(ART_MONTH).forEach(k=>delete ART_MONTH[k]);
+    Object.assign(ART_MONTH, newArtMonth);
 
     $('uinfo').innerHTML = `<strong>${fname}</strong> · ${D.length} articles · ${Object.keys(SVC_G).length} services`;
     $('uok').textContent = '⏳ Synchronisation…';
